@@ -4,6 +4,7 @@
 
 # Untested State
 this code may not work as i am still waiting for my s2 boards to arrive. 
+
 the usb method was tested on a samd51 board and it works but i have not physically tested it on a esp32 s2 board.
 
 <br><br><br>
