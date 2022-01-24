@@ -1,9 +1,11 @@
 # ESP32 Server 9.00u
 
+<br><br>
 
 # Untested State
 this code may not work as i am still waiting for my s2 boards to arrive.
 
+<br><br><br>
 
 This is a project designed for the <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32 S2</a> to provide a wifi http server, dns server and USB.
 
