@@ -1,5 +1,10 @@
 # ESP32 Server 9.00u
 
+
+# Untested State
+this code may not work as i am still waiting for my s2 boards to arrive.
+
+
 This is a project designed for the <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32 S2</a> to provide a wifi http server, dns server and USB.
 
 the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a></b> and <b><a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add these libraries to arduino
