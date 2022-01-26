@@ -9,7 +9,7 @@ the usb method was tested on a samd51 board and it works but i have not physical
 
 <br><br><br>
 
-This is a project designed for the <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a> or <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB.
+This is a project designed for the <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a> or <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
 
 the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a></b> and <b><a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add these libraries to arduino
 
@@ -21,7 +21,7 @@ the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebSe
 
 this is for the 9.00 exploit and the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32 S2</a> boards, it <b>will not work on the original ESP32 boards</b> as they do not support the usb functions required by this project.
 
-you do not need a usb drive with this project as it emulates a usb mass storage device to the console and corrupts the kernel heap to leverage the exploit(exfathax).
+you do not need a usb drive with this project as it emulates a usb mass storage device to the console and triggers a filesystem bug to leverage the exploit(exfathax).
 
 the only files required on the spiffs storage of the esp32 are the .bin payloads, everything else is handled internally including generating a list of payloads.
 
@@ -29,9 +29,9 @@ you can still modify the html by uploading your own index.html, if there is no i
 
 if you have problems compiling the sketch make sure the <a href=https://github.com/espressif/arduino-esp32>ESP32 library</a> is up to date.
 
-the firmware is updatable via http and the exploit files can be managed via http.
+the firmware is updatable via http and the payload files can be managed via http.
 
-you can access the main page from the userguide or the consoles webbrowser.
+you can access the main page from the userguide or the consoles webbrowser using any hostname.
 
 
 
@@ -47,7 +47,7 @@ you can access the main page from the userguide or the consoles webbrowser.
 
 * <b>info.html</b> - provides information about the esp board.
 
-* <b>upload.html</b> - used to upload files(<b>html</b>) to the esp board for the webserver.
+* <b>upload.html</b> - used to upload files(<b>.bin</b>) to the esp board for the webserver.
 
 * <b>update.html</b> - used to update the firmware on the esp board (<b>fwupdate.bin</b>).
 
