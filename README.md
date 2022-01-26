@@ -9,7 +9,7 @@ the usb method was tested on a samd51 board and it works but i have not physical
 
 <br><br><br>
 
-This is a project designed for the <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a> or <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32 S2</a> to provide a wifi http server, dns server and USB.
+This is a project designed for the <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a> or <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB.
 
 the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a></b> and <b><a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add these libraries to arduino
 
