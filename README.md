@@ -9,18 +9,19 @@ the usb method was tested on a samd51 board and it works but i have not physical
 
 <br><br><br>
 
-This is a project designed for the <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32 S2</a> to provide a wifi http server, dns server and USB.
+This is a project designed for the <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a> or <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32 S2</a> to provide a wifi http server, dns server and USB.
 
 the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a></b> and <b><a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add these libraries to arduino
 
 <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a><br>
 <a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a><br>
+<a href=https://github.com/espressif/arduino-esp32>ESP32 library 2.0.2+</a>
 
 <br>
 
-this is for the 9.00 exploit and the esp32 S2 boards.
+this is for the 9.00 exploit and the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32 S2</a> boards, it <b>will not work on the original ESP32 boards</b> as they do not support the usb functions required by this project.
 
-you do not need a usb drive with this project as it emulates a usb mass storage device to the console and injects the exfathax disk image.
+you do not need a usb drive with this project as it emulates a usb mass storage device to the console and corrupts the kernel heap to leverage the exploit(exfathax).
 
 the only files required on the spiffs storage of the esp32 are the .bin payloads, everything else is handled internally including generating a list of payloads.
 
