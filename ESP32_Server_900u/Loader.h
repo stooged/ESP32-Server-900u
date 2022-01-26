@@ -47,7 +47,7 @@ function loadPayloadData() // preload payload data
 }
 
 
-//ESP8266 usb functions - stooged
+// usb functions - stooged
 function disableUSB() {
   var getpl = new XMLHttpRequest();
   getpl.open("POST", "./usboff", true);
@@ -971,7 +971,7 @@ var trigger_spray = function () {
 
     //Trigger OOB
 
-    //ESP8266 enable usb - stooged
+    // enable usb - stooged
     showMessage("Loading ExFatHax...");
     enableUSB();
 
