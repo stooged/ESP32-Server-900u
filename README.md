@@ -15,7 +15,14 @@ the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebSe
 
 <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a><br>
 <a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a><br>
-<a href=https://github.com/espressif/arduino-esp32>ESP32 library 2.0.2+</a>
+
+<br>
+
+install or update the ESP32 library by adding this url to the "<b>Additional Boards Manager URLs</b>" section in the arduino "<b>Preferences</b>".
+
+` https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json `
+
+then goto the "<b>Boards Manager</b> and install or update the "<b>esp32</b>" library.
 
 <br>
 
