@@ -18,7 +18,7 @@ the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebSe
 
 <br>
 
-install or update the ESP32 library by adding this url to the "<b>Additional Boards Manager URLs</b>" section in the arduino "<b>Preferences</b>".
+install or update the ESP32 library by adding this url to the <a href=https://docs.arduino.cc/learn/starting-guide/cores>Additional Boards Manager URLs</a> section in the arduino "<b>Preferences</b>".
 
 ` https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json `
 
