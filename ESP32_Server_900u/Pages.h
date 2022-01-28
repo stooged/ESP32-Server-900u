@@ -1,5 +1,3 @@
-
-
 static const char indexData[] PROGMEM = R"==(
 <!DOCTYPE html><html>
 <head>

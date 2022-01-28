@@ -350,44 +350,6 @@ void handleInfo(AsyncWebServerRequest *request)
 }
 
 
-void handleCacheManifest(AsyncWebServerRequest *request) {
-  String output = "CACHE MANIFEST\r\n";
-  File dir = SPIFFS.open("/");
-  File file = dir.openNextFile();
-  while(file){
-    String fname = String(file.name());
-    if (fname.length() > 0 && !fname.equals("config.ini"))
-    {
-      if (fname.endsWith(".gz")) {
-        fname = fname.substring(0, fname.length() - 3);
-      }
-     output += urlencode(fname) + "\r\n";
-    }
-     file.close();
-     file = dir.openNextFile();
-  }
-  if(!instr(output,"index.html\r\n"))
-  {
-    output += "index.html\r\n";
-  }
-  if(!instr(output,"menu.html\r\n"))
-  {
-    output += "menu.html\r\n";
-  }
-  if(!instr(output,"loader.html\r\n"))
-  {
-    output += "loader.html\r\n";
-  }
-  if(!instr(output,"payloads.html\r\n"))
-  {
-    output += "payloads.html\r\n";
-  }
-   request->send(200, "text/cache-manifest", output);
-}
-
-
-
-
 void writeConfig()
 {
   File iniFile = SPIFFS.open("/config.ini", "w");
@@ -401,7 +363,7 @@ void writeConfig()
 void setup(){
   //Serial.begin(115200);
   //Serial.println("Version: " + firmwareVer);
-  if (SPIFFS.begin()) {
+  if (SPIFFS.begin(true)) {
   if (SPIFFS.exists("/config.ini")) {
   File iniFile = SPIFFS.open("/config.ini", "r");
   if (iniFile) {
@@ -463,10 +425,6 @@ void setup(){
 
   server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send(200, "text/plain", "Microsoft Connect Test");
-  });
-
-  server.on("/cache.manifest", HTTP_GET, [](AsyncWebServerRequest *request){
-   handleCacheManifest(request);
   });
 
   server.on("/upload.html", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -551,17 +509,14 @@ void setup(){
      }
      if (path.endsWith("loader.html"))
      {
-        request->send(200, "text/html", loaderData);
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", loader_gz, sizeof(loader_gz));
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
         return;
      }    
       if (instr(path,"/document/") && instr(path,"/ps4/"))
       {
         path.replace("/document/" + split(path,"/document/","/ps4/") + "/ps4/", "/");
-        if (path.endsWith("cache.manifest"))
-        {
-          handleCacheManifest(request);
-          return;
-        }
           request->send(SPIFFS, path, getContentType(path));
         return;
       }
@@ -582,7 +537,7 @@ void enableUSB()
 {
   dev.vendorID("USB");
   dev.productID("ESP32 Server");
-  dev.productRevision("1.00");
+  dev.productRevision(firmwareVer.c_str());
   dev.onStartStop(onStartStop);
   dev.onRead(onRead);
   dev.onWrite(onWrite);
