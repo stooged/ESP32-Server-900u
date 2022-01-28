@@ -7,9 +7,13 @@ this code may not work as i am still waiting for my s2 boards to arrive.
 
 the usb method was tested on a samd51 board and it works but i have not physically tested it on a esp32 s2 board.
 
+<br>
+
+`the boards that it works on need to be tested and confirmed as some boards may not be plug and play.`
+
 <br><br><br>
 
-This is a project designed for the <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a> or <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
+This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
 
 the project is built using <b><a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a></b> and <b><a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add these libraries to arduino
 
