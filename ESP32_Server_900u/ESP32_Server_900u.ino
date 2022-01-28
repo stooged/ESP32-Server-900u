@@ -528,8 +528,8 @@ void setup(){
   server.begin();
   //Serial.println("HTTP server started");
 
-  USB.begin();
-  //Serial.println("USB Init");
+  
+
 }
 
  
@@ -543,6 +543,7 @@ void enableUSB()
   dev.onWrite(onWrite);
   dev.mediaPresent(true);
   dev.begin(8192, 512);
+  USB.begin();
   enTime = millis();
   hasEnabled = true;
 }
