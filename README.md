@@ -11,6 +11,11 @@ the usb method was tested on a samd51 board and it works but i have not physical
 
 `the boards that it works on need to be tested and confirmed as some boards may not be plug and play.`
 
+after some discussion these boards look like the best contenders for a plug and play setup<br>
+<a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-s2-devkitc-1.html>ESP32-S2-DevKitC-1</a><br>
+<a href=http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3>ESP32-S2 ESP32-S2-WOOR</a><br>
+other boards will need a usb A plug wired up to them.
+
 <br><br><br>
 
 This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
