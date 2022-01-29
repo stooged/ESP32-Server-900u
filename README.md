@@ -13,7 +13,7 @@ the usb method was tested on a samd51 board and it works but i have not physical
 
 after some discussion these boards look like the best contenders for a plug and play setup<br>
 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-s2-devkitc-1.html>ESP32-S2-DevKitC-1</a><br>
-<a href=http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3>ESP32-S2 ESP32-S2-WOOR</a><br>
+<a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3">ESP32-S2 ESP32-S2-WOOR</a><br>
 
 <br>
 
