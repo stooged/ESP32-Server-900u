@@ -532,12 +532,53 @@ void setup(){
 
 }
 
+
+static int32_t onWrite(uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize){
+  return bufsize;
+}
+
+
+static int32_t onRead(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize){
+  if (lba > 4){lba = 4;}
+  memcpy(buffer, exfathax[lba] + offset, bufsize);
+  return bufsize;
+}
+
+
+static bool onStartStop(uint8_t power_condition, bool start, bool load_eject){
+  return true;
+}
+
+
+static void usbEventCallback(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data){
+  if(event_base == ARDUINO_USB_EVENTS){
+    arduino_usb_event_data_t * data = (arduino_usb_event_data_t*)event_data;
+    switch (event_id){
+      case ARDUINO_USB_STARTED_EVENT:
+       // Serial.println("USB PLUGGED");
+        break;
+      case ARDUINO_USB_STOPPED_EVENT:
+       // Serial.println("USB UNPLUGGED");
+        break;
+      case ARDUINO_USB_SUSPEND_EVENT:
+      //  Serial.printf("USB SUSPENDED: remote_wakeup_en: %u\n", data->suspend.remote_wakeup_en);
+        break;
+      case ARDUINO_USB_RESUME_EVENT:
+       // Serial.println("USB RESUMED");
+        break;
+      default:
+        break;
+    }
+  }
+}
+
  
 void enableUSB()
 {
+  USB.onEvent(usbEventCallback);
   dev.vendorID("USB");
   dev.productID("ESP32 Server");
-  dev.productRevision(firmwareVer.c_str());
+  dev.productRevision("1.0");
   dev.onStartStop(onStartStop);
   dev.onRead(onRead);
   dev.onWrite(onWrite);
@@ -554,23 +595,6 @@ void disableUSB()
   enTime = 0;
   hasEnabled = false;
   dev.end();
-}
-
-
-static int32_t onWrite(uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize){
-  return bufsize;
-}
-
-
-static int32_t onRead(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize){
-  if (lba > 4){lba = 4;}
-  memcpy(buffer, exfathax[lba] + offset, bufsize);
-  return bufsize;
-}
-
-
-static bool onStartStop(uint8_t power_condition, bool start, bool load_eject){
-  return true;
 }
 
 
