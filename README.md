@@ -17,7 +17,7 @@ after some discussion these boards look like the best contenders for a plug and 
 
 <br>
 
-these boards below will need a usb A plug wired up to them.
+these boards below will need a usb A plug wired up to them.<br>
 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32-S2-DevKitM-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-devkitm-1.jpg>Diagram</a>
 
 
