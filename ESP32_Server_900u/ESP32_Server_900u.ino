@@ -10,6 +10,7 @@
 #include "USB.h"
 #include "USBMSC.h"
 
+
 /*
 #if ARDUINO_USB_CDC_ON_BOOT
 #define HWSerial Serial0
@@ -393,6 +394,8 @@ void writeConfig()
 void setup(){
   //HWSerial.begin(115200);
   //HWSerial.println("Version: " + firmwareVer);
+  //USBSerial.begin();
+  
   if (SPIFFS.begin(true)) {
   if (SPIFFS.exists("/config.ini")) {
   File iniFile = SPIFFS.open("/config.ini", "r");
@@ -598,8 +601,6 @@ void setup(){
   server.begin();
   //HWSerial.println("HTTP server started");
 
-  
-
 }
 
 
@@ -619,34 +620,10 @@ static bool onStartStop(uint8_t power_condition, bool start, bool load_eject){
   return true;
 }
 
-
-static void usbEventCallback(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data){
-  if(event_base == ARDUINO_USB_EVENTS){
-    arduino_usb_event_data_t * data = (arduino_usb_event_data_t*)event_data;
-    switch (event_id){
-      case ARDUINO_USB_STARTED_EVENT:
-        //HWSerial.println("USB PLUGGED");
-        break;
-      case ARDUINO_USB_STOPPED_EVENT:
-        //HWSerial.println("USB UNPLUGGED");
-        break;
-      case ARDUINO_USB_SUSPEND_EVENT:
-        //HWSerial.printf("USB SUSPENDED: remote_wakeup_en: %u\n", data->suspend.remote_wakeup_en);
-        break;
-      case ARDUINO_USB_RESUME_EVENT:
-        //HWSerial.println("USB RESUMED");
-        break;
-      default:
-        break;
-    }
-  }
-}
-
  
 void enableUSB()
 {
-  USB.onEvent(usbEventCallback);
-  dev.vendorID("USB");
+  dev.vendorID("PS4");
   dev.productID("ESP32 Server");
   dev.productRevision("1.0");
   dev.onStartStop(onStartStop);
@@ -654,7 +631,6 @@ void enableUSB()
   dev.onWrite(onWrite);
   dev.mediaPresent(true);
   dev.begin(8192, 512);
-  //USBSerial.begin();
   USB.begin();
   enTime = millis();
   hasEnabled = true;
@@ -666,7 +642,7 @@ void disableUSB()
   enTime = 0;
   hasEnabled = false;
   dev.end();
-  //USBSerial.end();
+  ESP.restart();
 }
 
 
