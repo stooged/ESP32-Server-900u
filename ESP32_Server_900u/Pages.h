@@ -3,43 +3,10 @@ static const char indexData[] PROGMEM = R"==(
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ESP32 Server</title>
-<style>
-.btn {
-    background-color: DodgerBlue;
-    border: none;
-    color: white;
-    padding: 12px 16px;
-    font-size: 16px;
-    cursor: pointer;
-  font-weight: bold;
-}
-.btn:hover {
-    background-color: RoyalBlue;
-}
-
-body {
-  background-color: #1451AE;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 0 0 0 0.0;
-  overflow-y:hidden;
-  text-shadow: 3px 2px DodgerBlue;
-} 
-
-.main {
-  padding: 0px 0px;
-  position: absolute; 
-  top: 0; 
-  right: 0;
-  bottom: 0; 
-  left: 0;
-  overflow-y:hidden;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="main">
+<div class="plmain">
 <iframe src="payloads.html" height="100%" width="100%" frameborder="0"></iframe>
 </div>
 </body>
@@ -51,12 +18,7 @@ static const char rebootingData[] PROGMEM = R"==(
 <!DOCTYPE html><html>
 <head>
 <meta http-equiv="refresh" content="8; url=/info.html">
-<style type="text/css">
-#loader {  z-index: 1;   width: 50px;   height: 50px;   margin: 0 0 0 0;   border: 6px solid #f3f3f3;   border-radius: 50%;   border-top: 6px solid #3498db;   width: 50px;   height: 50px;   -webkit-animation: spin 2s linear infinite;   animation: spin 2s linear infinite; 
-} @-webkit-keyframes spin {  0%  {  -webkit-transform: rotate(0deg);  }  100% {  -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }} 
-body { background-color: #1451AE; color: #ffffff; font-size: 20px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}  
- #msgfmt { font-size: 16px; font-weight: normal;}#status { font-size: 16px;  font-weight: normal;}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <center>
 <br><br><br><br><br>
@@ -73,10 +35,7 @@ static const char updateData[] PROGMEM = R"==(
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Firmware Update</title>
-<style type="text/css">
-#loader {  z-index: 1;  width: 50px;  height: 50px;  margin: 0 0 0 0;  border: 6px solid #f3f3f3;  border-radius: 50%;  border-top: 6px solid #3498db;  width: 50px;  height: 50px;  -webkit-animation: spin 2s linear infinite;  animation: spin 2s linear infinite;}@-webkit-keyframes spin {  0% { -webkit-transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }}
-body {    background-color: #1451AE; color: #ffffff; font-size: 20px;  font-weight: bold;    margin: 0 0 0 0.0;    padding: 0.4em 0.4em 0.4em 0.6em;}  input[type="submit"]:hover {     background: #ffffff;    color: green; }input[type="submit"]:active {     outline-color: green;    color: green;    background: #ffffff; }input[type="button"]:hover {     background: #ffffff;    color: #000000; }input[type="button"]:active {     outline-color: #000000;    color: #000000;    background: #ffffff; }#selfile {  font-size: 16px;  font-weight: normal;}#status {  font-size: 16px;  font-weight: normal;}
-</style>
+<link rel="stylesheet" href="style.css">
 <script>
 function formatBytes(bytes) {  if(bytes == 0) return '0 Bytes';  var k = 1024,  dm = 2,  sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],  i = Math.floor(Math.log(bytes) / Math.log(k));  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];}
 function statusUpl() {  document.getElementById("upload").style.display="none";  document.getElementById("btnsel").style.display="none";  document.getElementById("status").innerHTML = "<div id='loader'></div><br>Uploading firmware file...";  setTimeout(statusUpd, 5000);}
@@ -98,9 +57,7 @@ static const char uploadData[] PROGMEM = R"==(
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>File Upload</title>
-<style type="text/css">
-#loader {  z-index: 1;  width: 50px;  height: 50px;  margin: 0 0 0 0;  border: 6px solid #f3f3f3;  border-radius: 50%;  border-top: 6px solid #3498db;  width: 50px;  height: 50px;  -webkit-animation: spin 2s linear infinite;  animation: spin 2s linear infinite;}@-webkit-keyframes spin {  0% { -webkit-transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }}body {    background-color: #1451AE; color: #ffffff; font-size: 20px;  font-weight: bold;    margin: 0 0 0 0.0;    padding: 0.4em 0.4em 0.4em 0.6em;}  input[type="submit"]:hover {     background: #ffffff;    color: green; }input[type="submit"]:active {     outline-color: green;    color: green;    background: #ffffff;  } input[type="button"]:hover {     background: #ffffff;    color: #000000; }input[type="button"]:active {     outline-color: #000000;    color: #000000;    background: #ffffff; }#selfile {  font-size: 16px;  font-weight: normal;}#status {  font-size: 16px;  font-weight: normal;}
-</style>
+<link rel="stylesheet" href="style.css">
 <script>
 function formatBytes(bytes) {  if(bytes == 0) return '0 Bytes';  var k = 1024,  dm = 2,  sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],  i = Math.floor(Math.log(bytes) / Math.log(k));  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];}
 function statusUpl() {  document.getElementById("upload").style.display="none";  document.getElementById("btnsel").style.display="none";  document.getElementById("status").innerHTML = "<div id='loader'></div><br>Uploading files";}
@@ -125,9 +82,7 @@ static const char adminData[] PROGMEM = R"==(
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Admin Panel</title>
-<style>
-body {    background-color: #1451AE; color: #ffffff; font-size: 14px;  font-weight: bold;    margin: 0 0 0 0.0;    padding: 0.4em 0.4em 0.4em 0.6em;}.sidenav {    width: 140px;    position: fixed;    z-index: 1;    top: 20px;    left: 10px;    background: #6495ED;    overflow-x: hidden;    padding: 8px 0;}.sidenav a {    padding: 6px 8px 6px 16px;    text-decoration: none;    font-size: 14px;    color: #ffffff;    display: block;}.sidenav a:hover {    color: #1451AE;}.main {    margin-left: 150px;     padding: 10px 10px; position: absolute;   top: 0;   right: 0; bottom: 0;  left: 0;}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body><div class="sidenav"><a href="/index.html" target="mframe">Main Page</a>
 <a href="/info.html" target="mframe">ESP Information</a>
@@ -150,8 +105,7 @@ static const char rebootData[] PROGMEM = R"==(
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ESP Reboot</title>
-<style type="text/css">#loader {  z-index: 1;   width: 50px;   height: 50px;   margin: 0 0 0 0;   border: 6px solid #f3f3f3;   border-radius: 50%;   border-top: 6px solid #3498db;   width: 50px;   height: 50px;   -webkit-animation: spin 2s linear infinite;   animation: spin 2s linear infinite; } @-webkit-keyframes spin {  0%  {  -webkit-transform: rotate(0deg);  }  100% {  -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }} body { background-color: #1451AE; color: #ffffff; font-size: 20px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}   input[type="submit"]:hover { background: #ffffff; color: green; }input[type="submit"]:active { outline-color: green; color: green; background: #ffffff; } #msgfmt { font-size: 16px; font-weight: normal;}#status { font-size: 16px;  font-weight: normal;} 
-</style>
+<link rel="stylesheet" href="style.css">
 <script>
 function statusRbt() { var answer = confirm("Are you sure you want to reboot?");  if (answer) {document.getElementById("reboot").style.display="none";   document.getElementById("status").innerHTML = "<div id='loader'></div><br>Rebooting ESP Board"; return true;  }else {   return false;  }}
 </script>
@@ -165,4 +119,152 @@ function statusRbt() { var answer = confirm("Are you sure you want to reboot?");
 <input id="reboot" type="submit" value="Reboot ESP" onClick="return statusRbt();" style="display: block;"></div>
 </form><center>
 </body></html>
+)==";
+
+
+static const char styleData[] PROGMEM = R"==(
+body {
+background-color: #1451AE;
+color: #ffffff;
+font-size: 14px;
+font-weight: bold;
+margin: 0 0 0 0.0;
+overflow-y:hidden;
+//text-shadow: 3px 2px DodgerBlue;
+padding: 0.4em 0.4em 0.4em 0.6em;
+} 
+
+.btn {
+background-color: DodgerBlue;
+border: none;
+color: white;
+padding: 12px 16px;
+font-size: 16px;
+cursor: pointer;
+font-weight: bold;
+}
+
+.btn:hover {
+background-color: RoyalBlue;
+}
+
+.main {
+margin-left: 150px;     
+padding: 10px 10px; 
+position: absolute; 
+top: 0; 
+right: 0;
+bottom: 0; 
+left: 0;
+overflow-y:hidden;
+}
+
+.plmain {
+  padding: 0px 0px;
+  position: absolute; 
+  top: 0; 
+  right: 0;
+  bottom: 0; 
+  left: 0;
+  overflow-y:hidden;
+}
+
+a:link {
+color: #ffffff; 
+text-decoration: none;
+} 
+
+a:visited {
+color: #ffffff; 
+text-decoration: none;
+} 
+
+a:hover {
+color: #ffffff; 
+text-decoration: underline;
+} 
+
+a:active {
+color: #ffffff; 
+text-decoration: underline;
+} 
+
+table {
+font-family: arial, sans-serif; 
+border-collapse: collapse; 
+width: 100%;
+} 
+
+td, th {
+border: 1px solid #dddddd; text-align: left; padding: 8px;
+} 
+
+#loader {  
+z-index: 1;
+width: 50px;
+height: 50px;
+margin: 0 0 0 0;
+border: 6px solid #f3f3f3;
+border-radius: 50%;
+border-top: 6px solid #3498db;
+width: 50px;
+height: 50px;
+-webkit-animation: spin 2s linear infinite;
+animation: spin 2s linear infinite; 
+}
+
+@-webkit-keyframes spin {0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}
+} 
+
+#msgfmt { 
+font-size: 16px; 
+font-weight: normal;
+}
+
+#status { 
+font-size: 16px;  
+font-weight: normal;
+}
+
+input[type=\"submit\"]:hover { 
+background: #ffffff;
+color: green; 
+}
+
+input[type=\"submit\"]:active { 
+outline-color: green;
+color: green;
+background: #ffffff; 
+}
+
+#selfile {  
+font-size: 16px;  
+font-weight: normal;
+}
+
+.sidenav {
+width: 140px;
+position: fixed;
+z-index: 1;
+top: 20px;
+left: 10px;
+background: #6495ED;
+overflow-x: hidden;
+padding: 8px 0;
+}
+
+.sidenav a {
+padding: 6px 8px 6px 16px;
+text-decoration: none;
+font-size: 14px;
+color: #ffffff;
+display: block;
+}
+
+.sidenav a:hover {
+color: #1451AE;
+}
 )==";

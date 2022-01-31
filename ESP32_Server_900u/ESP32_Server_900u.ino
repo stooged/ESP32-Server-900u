@@ -10,6 +10,24 @@
 #include "USB.h"
 #include "USBMSC.h"
 
+/*
+#if ARDUINO_USB_CDC_ON_BOOT
+#define HWSerial Serial0
+#define USBSerial Serial
+#else
+#define HWSerial Serial
+USBCDC USBSerial;
+#endif
+*/
+
+                    // enable internal goldhen.h [ true / false ]
+#define INTHEN true // goldhen is placed in the app partition to free up space on spiffs for other payloads, target partition scheme: [No OTA (1MB APP/3MB SPIFFS)]
+                    // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen
+
+#if INTHEN
+#include "goldhen.h"
+#endif
+
 String AP_SSID = "PS4_WEB_AP";
 String AP_PASS = "password";
 int WEB_PORT = 80;
@@ -118,7 +136,7 @@ String getContentType(String filename){
 
 void sendwebmsg(AsyncWebServerRequest *request, String htmMsg)
 {
-    String tmphtm = "<!DOCTYPE html><html><head><style>body { background-color: #1451AE;color: #ffffff;font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}</style></head><center><br><br><br><br><br><br>" + htmMsg + "</center></html>";
+    String tmphtm = "<!DOCTYPE html><html><head><link rel=\"stylesheet\" href=\"style.css\"></head><center><br><br><br><br><br><br>" + htmMsg + "</center></html>";
     request->send(200, "text/html", tmphtm);
 }
 
@@ -137,7 +155,7 @@ void handleFwUpdate(AsyncWebServerRequest *request, String filename, size_t inde
       if (!filename.startsWith("/")) {
         filename = "/" + filename;
       }
-      //Serial.printf("Update Start: %s\n", filename.c_str());
+      //HWSerial.printf("Update Start: %s\n", filename.c_str());
       if(!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)){
         Update.printError(Serial);
         sendwebmsg(request, "Update Failed: " + String(Update.errorString()));
@@ -151,8 +169,8 @@ void handleFwUpdate(AsyncWebServerRequest *request, String filename, size_t inde
     }
     if(final){
       if(Update.end(true)){
-        //Serial.printf("Update Success: %uB\n", index+len);
-        String tmphtm = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><style>body { background-color: #1451AE;color: #ffffff;font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}</style></head><center><br><br><br><br><br><br>Update Success, Rebooting.</center></html>";
+        //HWSerial.printf("Update Success: %uB\n", index+len);
+        String tmphtm = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><link rel=\"stylesheet\" href=\"style.css\"></head><center><br><br><br><br><br><br>Update Success, Rebooting.</center></html>";
         request->send(200, "text/html", tmphtm);
         delay(1000);
         ESP.restart();
@@ -185,22 +203,27 @@ void handleDelete(AsyncWebServerRequest *request){
 
 void handleFileMan(AsyncWebServerRequest *request) {
   File dir = SPIFFS.open("/");
-  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><style type=\"text/css\">a:link {color: #ffffff; text-decoration: none;} a:visited {color: #ffffff; text-decoration: none;} a:hover {color: #ffffff; text-decoration: underline;} a:active {color: #ffffff; text-decoration: underline;} table {font-family: arial, sans-serif; border-collapse: collapse; width: 100%;} td, th {border: 1px solid #dddddd; text-align: left; padding: 8px;} button {display: inline-block; padding: 1px; margin-right: 6px; vertical-align: top; float:left;} body {background-color: #1451AE;color: #ffffff; font-size: 14px; padding: 0.4em 0.4em 0.4em 0.6em; margin: 0 0 0 0.0;}</style><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }}</script></head><body><br><table>"; 
+  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><link rel=\"stylesheet\" href=\"style.css\"><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }}</script></head><body><br><table>"; 
+  int fileCount = 0;
   File file = dir.openNextFile();
   while(file){
-  
     String fname = String(file.name());
     if (fname.length() > 0 && !fname.equals("config.ini"))
     {
+    fileCount++;
     output += "<tr>";
     output += "<td><a href=\"" +  fname + "\">" + fname + "</a></td>";
     output += "<td>" + formatBytes(file.size()) + "</td>";
-    output += "<td><form action=\"/" + fname + "?download=1\" method=\"post\"><button type=\"submit\" name=\"file\" value=\"" + fname + "\">Download</button></form></td>";
+    output += "<td><form action=\"/" + fname + "\" method=\"get\"><button type=\"submit\">Download</button></form></td>";
     output += "<td><form action=\"/delete\" method=\"post\"><button type=\"submit\" name=\"file\" value=\"" + fname + "\" onClick=\"return statusDel('" + fname + "');\">Delete</button></form></td>";
     output += "</tr>";
     }
     file.close();
     file = dir.openNextFile();
+  }
+  if (fileCount == 0)
+  {
+      output += "<p><center>No files found<br>You can upload files using the \"File Uploader\" page.</center></p>";
   }
   output += "</table></body></html>";
   request->send(200, "text/html", output);
@@ -209,9 +232,16 @@ void handleFileMan(AsyncWebServerRequest *request) {
 
 void handlePayloads(AsyncWebServerRequest *request) {
   File dir = SPIFFS.open("/");
-  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>ESP Server</title><script>function setpayload(payload,title){ sessionStorage.setItem('payload', payload); sessionStorage.setItem('title', title); window.open('loader.html', '_self');}</script><style>.btn { background-color: DodgerBlue; border: none; color: white; padding: 12px 16px; font-size: 16px; cursor: pointer; font-weight: bold;}.btn:hover { background-color: RoyalBlue;}body { background-color: #1451AE; color: #ffffff; font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; overflow-y:hidden; text-shadow: 3px 2px DodgerBlue;} .main { padding: 0px 0px; position: absolute; top: 0; right: 0; bottom: 0; left: 0; overflow-y:hidden;}</style></head><body><center><h1>9.00 Payloads</h1>";
+  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>ESP Server</title><link rel=\"stylesheet\" href=\"style.css\"><style>body { background-color: #1451AE; color: #ffffff; font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; overflow-y:hidden; text-shadow: 3px 2px DodgerBlue;}</style><script>function setpayload(payload,title,waittime){ sessionStorage.setItem('payload', payload); sessionStorage.setItem('title', title); sessionStorage.setItem('waittime', waittime);  window.open('loader.html', '_self');}</script></head><body><center><h1>9.00 Payloads</h1>";
   int cntr = 0;
   int payloadCount = 0;
+
+#if INTHEN
+  payloadCount++;
+  cntr++;
+  output +=  "<a onclick=\"setpayload('gldhen.bin','GoldHEN v2.0b2','10000')\"><button class=\"btn\">GoldHEN v2.0b2</button></a>&nbsp;";
+#endif
+
   File file = dir.openNextFile();
   while(file){
     String fname = String(file.name());
@@ -259,7 +289,7 @@ void handleConfig(AsyncWebServerRequest *request)
     iniFile.print("\r\nSSID=" + AP_SSID + "\r\nPASSWORD=" + AP_PASS + "\r\n\r\nWEBSERVER_IP=" + tmpip + "\r\n\r\nSUBNET_MASK=" + tmpsubn + "\r\n");
     iniFile.close();
     }
-    String htmStr = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><style type=\"text/css\">#loader {  z-index: 1;   width: 50px;   height: 50px;   margin: 0 0 0 0;   border: 6px solid #f3f3f3;   border-radius: 50%;   border-top: 6px solid #3498db;   width: 50px;   height: 50px;   -webkit-animation: spin 2s linear infinite;   animation: spin 2s linear infinite; } @-webkit-keyframes spin {  0%  {  -webkit-transform: rotate(0deg);  }  100% {  -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }} body { background-color: #1451AE; color: #ffffff; font-size: 20px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}   #msgfmt { font-size: 16px; font-weight: normal;}#status { font-size: 16px;  font-weight: normal;}</style></head><center><br><br><br><br><br><p id=\"status\"><div id='loader'></div><br>Config saved<br>Rebooting</p></center></html>";
+    String htmStr = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><link rel=\"stylesheet\" href=\"style.css\"></head><center><br><br><br><br><br><p id=\"status\"><div id='loader'></div><br>Config saved<br>Rebooting</p></center></html>";
     request->send(200, "text/html", htmStr);
     delay(1000);
     ESP.restart();
@@ -273,7 +303,7 @@ void handleConfig(AsyncWebServerRequest *request)
 
 void handleReboot(AsyncWebServerRequest *request)
 {
-  //Serial.print("Rebooting ESP");
+  //HWSerial.print("Rebooting ESP");
   request->send(200, "text/html", rebootingData);
   delay(1000);
   ESP.restart();
@@ -282,7 +312,7 @@ void handleReboot(AsyncWebServerRequest *request)
 
 void handleConfigHtml(AsyncWebServerRequest *request)
 {
-  String htmStr = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Config Editor</title><style type=\"text/css\">body {    background-color: #1451AE; color: #ffffff; font-size: 14px;  font-weight: bold;    margin: 0 0 0 0.0;    padding: 0.4em 0.4em 0.4em 0.6em;}  input[type=\"submit\"]:hover {     background: #ffffff;    color: green; }input[type=\"submit\"]:active {     outline-color: green;    color: green;    background: #ffffff; }table {    font-family: arial, sans-serif;     border-collapse: collapse;}td, th {border: 1px solid #dddddd;     text-align: left;    padding: 8px;}</style></head><body><form action=\"/config.html\" method=\"post\"><center><table><tr><td>SSID:</td><td><input name=\"ap_ssid\" value=\"" + AP_SSID + "\"></td></tr><tr><td>PASSWORD:</td><td><input name=\"ap_pass\" value=\"" + AP_PASS + "\"></td></tr><tr><td>WEBSERVER IP:</td><td><input name=\"web_ip\" value=\"" + Server_IP.toString() + "\"></td></tr><tr><td>SUBNET MASK:</td><td><input name=\"subnet\" value=\"" + Subnet_Mask.toString() + "\"></td></tr></table><br><input id=\"savecfg\" type=\"submit\" value=\"Save Config\"></center></form></body></html>";
+  String htmStr = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Config Editor</title><style type=\"text/css\">body {background-color: #1451AE; color: #ffffff; font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;} input[type=\"submit\"]:hover { background: #ffffff; color: green; }input[type=\"submit\"]:active { outline-color: green; color: green; background: #ffffff; }table {font-family: arial, sans-serif;border-collapse: collapse;}td, th {border: 1px solid #dddddd;text-align: left; padding: 8px;}</style></head><body><form action=\"/config.html\" method=\"post\"><center><table><tr><td>SSID:</td><td><input name=\"ap_ssid\" value=\"" + AP_SSID + "\"></td></tr><tr><td>PASSWORD:</td><td><input name=\"ap_pass\" value=\"" + AP_PASS + "\"></td></tr><tr><td>WEBSERVER IP:</td><td><input name=\"web_ip\" value=\"" + Server_IP.toString() + "\"></td></tr><tr><td>SUBNET MASK:</td><td><input name=\"subnet\" value=\"" + Subnet_Mask.toString() + "\"></td></tr></table><br><input id=\"savecfg\" type=\"submit\" value=\"Save Config\"></center></form></body></html>";
   request->send(200, "text/html", htmStr);
 }
 
@@ -300,7 +330,7 @@ void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t in
       }
       if (filename.equals("/config.ini"))
       {return;}
-      //Serial.printf("Upload Start: %s\n", filename.c_str());
+      //HWSerial.printf("Upload Start: %s\n", filename.c_str());
       upFile = SPIFFS.open(filename, "w");
       }
     if(upFile){
@@ -308,7 +338,7 @@ void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t in
     }
     if(final){
         upFile.close();
-        //Serial.printf("upload Success: %uB\n", index+len);
+        //HWSerial.printf("upload Success: %uB\n", index+len);
     }
 }
 
@@ -329,7 +359,7 @@ void handleInfo(AsyncWebServerRequest *request)
 {
   float flashFreq = (float)ESP.getFlashChipSpeed() / 1000.0 / 1000.0;
   FlashMode_t ideMode = ESP.getFlashChipMode();
-  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>System Information</title><style type=\"text/css\">body { background-color: #1451AE;color: #ffffff;font-size: 14px;font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}</style></head>";
+  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>System Information</title><link rel=\"stylesheet\" href=\"style.css\"></head>";
   output += "<hr>###### Software ######<br><br>";
   output += "Firmware version " + firmwareVer + "<br>";
   output += "SDK version: " + String(ESP.getSdkVersion()) + "<br>";
@@ -361,8 +391,8 @@ void writeConfig()
 
 
 void setup(){
-  //Serial.begin(115200);
-  //Serial.println("Version: " + firmwareVer);
+  //HWSerial.begin(115200);
+  //HWSerial.println("Version: " + firmwareVer);
   if (SPIFFS.begin(true)) {
   if (SPIFFS.exists("/config.ini")) {
   File iniFile = SPIFFS.open("/config.ini", "r");
@@ -408,31 +438,35 @@ void setup(){
   }
   else
   {
-    //Serial.println("No SPIFFS");
+    //HWSerial.println("No SPIFFS");
   }
 
 
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(Server_IP, Server_IP, Subnet_Mask);
   WiFi.softAP(AP_SSID.c_str(), AP_PASS.c_str());
-  //Serial.println("WIFI AP started");
+  //HWSerial.println("WIFI AP started");
 
   dnsServer.setTTL(30);
   dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
   dnsServer.start(53, "*", Server_IP);
-  //Serial.println("DNS server started");
+  //HWSerial.println("DNS server started");
 
 
   server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send(200, "text/plain", "Microsoft Connect Test");
   });
 
+  server.on("/config.ini", HTTP_ANY, [](AsyncWebServerRequest *request){
+   request->send(404);
+  });
+
   server.on("/upload.html", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send(200, "text/html", uploadData);
   });
 
-   server.on("/upload.html", HTTP_POST, [](AsyncWebServerRequest *request){
-     request->redirect("/fileman.html"); 
+  server.on("/upload.html", HTTP_POST, [](AsyncWebServerRequest *request){
+   request->redirect("/fileman.html"); 
   }, handleFileUpload);
 
   server.on("/fileman.html", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -464,31 +498,41 @@ void setup(){
   });
 
   server.on("/update.html", HTTP_GET, [](AsyncWebServerRequest *request){
-     request->send(200, "text/html", updateData);
+   request->send(200, "text/html", updateData);
   });
 
-   server.on("/update.html", HTTP_POST, [](AsyncWebServerRequest *request){
+  server.on("/update.html", HTTP_POST, [](AsyncWebServerRequest *request){
   }, handleFwUpdate);
 
   server.on("/info.html", HTTP_GET, [](AsyncWebServerRequest *request){
-     handleInfo(request);
+   handleInfo(request);
+  });
+
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+     request->send(200, "text/css", styleData);
   });
 
   server.on("/usbon", HTTP_POST, [](AsyncWebServerRequest *request){
-     enableUSB();
-     request->send(200, "text/plain", "ok");
+   enableUSB();
+   request->send(200, "text/plain", "ok");
   });
 
   server.on("/usboff", HTTP_POST, [](AsyncWebServerRequest *request){
-     disableUSB();
-     request->send(200, "text/plain", "ok");
+   disableUSB();
+   request->send(200, "text/plain", "ok");
   });
-
+  
+#if INTHEN
+  server.on("/gldhen.bin", HTTP_GET, [](AsyncWebServerRequest *request){
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen, sizeof(goldhen));
+   request->send(response);
+  });
+#endif
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
   server.onNotFound([](AsyncWebServerRequest *request){
-    //Serial.println(request->url());
+    //HWSerial.println(request->url());
     String path = request->url();
     if (instr(path,"/update/ps4/"))
     {
@@ -502,6 +546,11 @@ void setup(){
         request->send(200, "text/html", indexData);
         return;
      }
+     if (path.endsWith("style.css"))
+     {
+        request->send(200, "text/css", styleData);
+        return;
+     }	 
      if (path.endsWith("payloads.html"))
      {
         handlePayloads(request);
@@ -513,20 +562,41 @@ void setup(){
         response->addHeader("Content-Encoding", "gzip");
         request->send(response);
         return;
-     }    
-      if (instr(path,"/document/") && instr(path,"/ps4/"))
-      {
-        path.replace("/document/" + split(path,"/document/","/ps4/") + "/ps4/", "/");
-          request->send(SPIFFS, path, getContentType(path));
+     }
+     if (path.endsWith("usbon"))
+     {
+        enableUSB();
+        request->send(200, "text/plain", "ok");
         return;
-      }
+     }
+     if (path.endsWith("usboff"))
+     {
+        disableUSB();
+        request->send(200, "text/plain", "ok");
+        return;
+     }
+
+#if INTHEN
+  if (path.endsWith("gldhen.bin")){
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen, sizeof(goldhen));
+   request->send(response);
+   return;
+  }
+#endif
+
+     if (instr(path,"/document/") && instr(path,"/ps4/"))
+     {
+        path.replace("/document/" + split(path,"/document/","/ps4/") + "/ps4/", "/");
+        request->send(SPIFFS, path, getContentType(path));
+        return;
+     }
     request->send(404);
   });
 
 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   server.begin();
-  //Serial.println("HTTP server started");
+  //HWSerial.println("HTTP server started");
 
   
 
@@ -555,16 +625,16 @@ static void usbEventCallback(void* arg, esp_event_base_t event_base, int32_t eve
     arduino_usb_event_data_t * data = (arduino_usb_event_data_t*)event_data;
     switch (event_id){
       case ARDUINO_USB_STARTED_EVENT:
-       // Serial.println("USB PLUGGED");
+        //HWSerial.println("USB PLUGGED");
         break;
       case ARDUINO_USB_STOPPED_EVENT:
-       // Serial.println("USB UNPLUGGED");
+        //HWSerial.println("USB UNPLUGGED");
         break;
       case ARDUINO_USB_SUSPEND_EVENT:
-      //  Serial.printf("USB SUSPENDED: remote_wakeup_en: %u\n", data->suspend.remote_wakeup_en);
+        //HWSerial.printf("USB SUSPENDED: remote_wakeup_en: %u\n", data->suspend.remote_wakeup_en);
         break;
       case ARDUINO_USB_RESUME_EVENT:
-       // Serial.println("USB RESUMED");
+        //HWSerial.println("USB RESUMED");
         break;
       default:
         break;
@@ -584,6 +654,7 @@ void enableUSB()
   dev.onWrite(onWrite);
   dev.mediaPresent(true);
   dev.begin(8192, 512);
+  //USBSerial.begin();
   USB.begin();
   enTime = millis();
   hasEnabled = true;
@@ -595,6 +666,7 @@ void disableUSB()
   enTime = 0;
   hasEnabled = false;
   dev.end();
+  //USBSerial.end();
 }
 
 
