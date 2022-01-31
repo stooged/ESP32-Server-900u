@@ -10,6 +10,18 @@
 #include "USB.h"
 #include "USBMSC.h"
 
+                    // enable internal goldhen.h [ true / false ]
+#define INTHEN true // goldhen is placed in the app partition to free up space on spiffs for other payloads, target partition scheme: [No OTA (1MB APP/3MB SPIFFS)]
+                    // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen
+
+                      // enable autohen [ true / false ]
+#define AUTOHEN false // this will load goldhen instead of the normal index/payload selection page.
+                      // INTHEN must be set to true for this to work       
+                     
+#if INTHEN
+#define INTHEN_NAME "GoldHEN v2.0b2"
+#include "goldhen.h"
+#endif
 
 /*
 #if ARDUINO_USB_CDC_ON_BOOT
@@ -21,19 +33,26 @@ USBCDC USBSerial;
 #endif
 */
 
-                    // enable internal goldhen.h [ true / false ]
-#define INTHEN true // goldhen is placed in the app partition to free up space on spiffs for other payloads, target partition scheme: [No OTA (1MB APP/3MB SPIFFS)]
-                    // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen
+//-------------------DEFAULT SETTINGS------------------//
 
-#if INTHEN
-#include "goldhen.h"
-#endif
-
+//create access point
+boolean startAP = true;
 String AP_SSID = "PS4_WEB_AP";
 String AP_PASS = "password";
-int WEB_PORT = 80;
 IPAddress Server_IP(10,1,1,1);
 IPAddress Subnet_Mask(255,255,255,0);
+
+//connect to wifi
+boolean connectWifi = false;
+String WIFI_SSID = "Home_WIFI";
+String WIFI_PASS = "password";
+
+//server port
+int WEB_PORT = 80;
+
+//Auto Usb Wait(milliseconds)
+int USB_WAIT = 10000;
+//-----------------------------------------------------//
 
 String firmwareVer = "1.00";
 DNSServer dnsServer;
@@ -171,7 +190,7 @@ void handleFwUpdate(AsyncWebServerRequest *request, String filename, size_t inde
     if(final){
       if(Update.end(true)){
         //HWSerial.printf("Update Success: %uB\n", index+len);
-        String tmphtm = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><link rel=\"stylesheet\" href=\"style.css\"></head><center><br><br><br><br><br><br>Update Success, Rebooting.</center></html>";
+        String tmphtm = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><style type=\"text/css\">body {background-color: #1451AE; color: #ffffff; font-size: 20px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}</style></head><center><br><br><br><br><br><br>Update Success, Rebooting.</center></html>";
         request->send(200, "text/html", tmphtm);
         delay(1000);
         ESP.restart();
@@ -236,34 +255,30 @@ void handlePayloads(AsyncWebServerRequest *request) {
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>ESP Server</title><link rel=\"stylesheet\" href=\"style.css\"><style>body { background-color: #1451AE; color: #ffffff; font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; overflow-y:hidden; text-shadow: 3px 2px DodgerBlue;}</style><script>function setpayload(payload,title,waittime){ sessionStorage.setItem('payload', payload); sessionStorage.setItem('title', title); sessionStorage.setItem('waittime', waittime);  window.open('loader.html', '_self');}</script></head><body><center><h1>9.00 Payloads</h1>";
   int cntr = 0;
   int payloadCount = 0;
+  if (USB_WAIT < 5000){USB_WAIT = 5000;} // correct unrealistic timing values
+  if (USB_WAIT > 25000){USB_WAIT = 25000;}
 
 #if INTHEN
   payloadCount++;
   cntr++;
-  output +=  "<a onclick=\"setpayload('gldhen.bin','GoldHEN v2.0b2','10000')\"><button class=\"btn\">GoldHEN v2.0b2</button></a>&nbsp;";
+  output +=  "<a onclick=\"setpayload('gldhen.bin','" + String(INTHEN_NAME) + "','" + String(USB_WAIT) + "')\"><button class=\"btn\">" + String(INTHEN_NAME) + "</button></a>&nbsp;";
 #endif
 
   File file = dir.openNextFile();
   while(file){
     String fname = String(file.name());
-    if (fname.length() > 0)
-    {
-      if (fname.endsWith(".gz")) {
-        fname = fname.substring(0, fname.length() - 3);
-      }
-    if (fname.endsWith(".bin"))
+    if (fname.length() > 0 && fname.endsWith(".bin"))
     {
       payloadCount++;
       String fnamev = fname;
       fnamev.replace(".bin","");
-      output +=  "<a onclick=\"setpayload('" + urlencode(fname) + "','" + fnamev + "','10000')\"><button class=\"btn\">" + fnamev + "</button></a>&nbsp;";
+      output +=  "<a onclick=\"setpayload('" + urlencode(fname) + "','" + fnamev + "','" + String(USB_WAIT) + "')\"><button class=\"btn\">" + fnamev + "</button></a>&nbsp;";
       cntr++;
       if (cntr == 3)
       {
         cntr = 0;
         output +=  "<p></p>";
       }
-    }
     }
     file.close();
     file = dir.openNextFile();
@@ -279,25 +294,39 @@ void handlePayloads(AsyncWebServerRequest *request) {
 
 void handleConfig(AsyncWebServerRequest *request)
 {
-  if(request->hasParam("ap_ssid", true) && request->hasParam("ap_pass", true) && request->hasParam("web_ip", true) && request->hasParam("subnet", true)) 
+  if(request->hasParam("ap_ssid", true) && request->hasParam("ap_pass", true) && request->hasParam("web_ip", true) && request->hasParam("web_port", true) && request->hasParam("subnet", true) && request->hasParam("wifi_ssid", true) && request->hasParam("wifi_pass", true) && request->hasParam("usbwait", true)) 
   {
     AP_SSID = request->getParam("ap_ssid", true)->value();
-    AP_PASS = request->getParam("ap_pass", true)->value();
+    if (!request->getParam("ap_pass", true)->value().equals("********"))
+    {
+      AP_PASS = request->getParam("ap_pass", true)->value();
+    }
+    WIFI_SSID = request->getParam("wifi_ssid", true)->value();
+    if (!request->getParam("wifi_pass", true)->value().equals("********"))
+    {
+      WIFI_PASS = request->getParam("wifi_pass", true)->value();
+    }
     String tmpip = request->getParam("web_ip", true)->value();
+    String tmpwport = request->getParam("web_port", true)->value();
     String tmpsubn = request->getParam("subnet", true)->value();
+    String tmpua = "false";
+    String tmpcw = "false";
+    if (request->hasParam("useap", true)){tmpua = "true";}
+    if (request->hasParam("usewifi", true)){tmpcw = "true";}
+    int USB_WAIT = request->getParam("usbwait", true)->value().toInt();
     File iniFile = SPIFFS.open("/config.ini", "w");
     if (iniFile) {
-    iniFile.print("\r\nSSID=" + AP_SSID + "\r\nPASSWORD=" + AP_PASS + "\r\n\r\nWEBSERVER_IP=" + tmpip + "\r\n\r\nSUBNET_MASK=" + tmpsubn + "\r\n");
+    iniFile.print("\r\nAP_SSID=" + AP_SSID + "\r\nAP_PASS=" + AP_PASS + "\r\nWEBSERVER_IP=" + tmpip + "\r\nWEBSERVER_PORT=" + tmpwport + "\r\nSUBNET_MASK=" + tmpsubn + "\r\nWIFI_SSID=" + WIFI_SSID + "\r\nWIFI_PASS=" + WIFI_PASS + "\r\nUSEAP=" + tmpua + "\r\nCONWIFI=" + tmpcw + "\r\nUSBWAIT=" + USB_WAIT + "\r\n");
     iniFile.close();
     }
-    String htmStr = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><link rel=\"stylesheet\" href=\"style.css\"></head><center><br><br><br><br><br><p id=\"status\"><div id='loader'></div><br>Config saved<br>Rebooting</p></center></html>";
+    String htmStr = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><style type=\"text/css\">#loader {z-index: 1;width: 50px;height: 50px;margin: 0 0 0 0;border: 6px solid #f3f3f3;border-radius: 50%;border-top: 6px solid #3498db;width: 50px;height: 50px;-webkit-animation: spin 2s linear infinite;animation: spin 2s linear infinite; } @-webkit-keyframes spin {0%{-webkit-transform: rotate(0deg);}100%{-webkit-transform: rotate(360deg);}}@keyframes spin{0%{ transform: rotate(0deg);}100%{transform: rotate(360deg);}}body {background-color: #1451AE; color: #ffffff; font-size: 20px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;} #msgfmt {font-size: 16px; font-weight: normal;}#status {font-size: 16px; font-weight: normal;}</style></head><center><br><br><br><br><br><p id=\"status\"><div id='loader'></div><br>Config saved<br>Rebooting</p></center></html>";
     request->send(200, "text/html", htmStr);
     delay(1000);
     ESP.restart();
   }
   else
   {
-    request->redirect("/config.html"); 
+   request->redirect("/config.html");
   }
 }
 
@@ -313,10 +342,13 @@ void handleReboot(AsyncWebServerRequest *request)
 
 void handleConfigHtml(AsyncWebServerRequest *request)
 {
-  String htmStr = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Config Editor</title><style type=\"text/css\">body {background-color: #1451AE; color: #ffffff; font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;} input[type=\"submit\"]:hover { background: #ffffff; color: green; }input[type=\"submit\"]:active { outline-color: green; color: green; background: #ffffff; }table {font-family: arial, sans-serif;border-collapse: collapse;}td, th {border: 1px solid #dddddd;text-align: left; padding: 8px;}</style></head><body><form action=\"/config.html\" method=\"post\"><center><table><tr><td>SSID:</td><td><input name=\"ap_ssid\" value=\"" + AP_SSID + "\"></td></tr><tr><td>PASSWORD:</td><td><input name=\"ap_pass\" value=\"" + AP_PASS + "\"></td></tr><tr><td>WEBSERVER IP:</td><td><input name=\"web_ip\" value=\"" + Server_IP.toString() + "\"></td></tr><tr><td>SUBNET MASK:</td><td><input name=\"subnet\" value=\"" + Subnet_Mask.toString() + "\"></td></tr></table><br><input id=\"savecfg\" type=\"submit\" value=\"Save Config\"></center></form></body></html>";
+  String tmpUa = "";
+  String tmpCw = "";
+  if (startAP){tmpUa = "checked";}
+  if (connectWifi){tmpCw = "checked";}
+  String htmStr = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Config Editor</title><style type=\"text/css\">body {background-color: #1451AE; color: #ffffff; font-size: 14px;font-weight: bold;margin: 0 0 0 0.0;padding: 0.4em 0.4em 0.4em 0.6em;}input[type=\"submit\"]:hover {background: #ffffff;color: green;}input[type=\"submit\"]:active{outline-color: green;color: green;background: #ffffff; }table {font-family: arial, sans-serif;border-collapse: collapse;}td {border: 1px solid #dddddd;text-align: left;padding: 8px;}th {border: 1px solid #dddddd; background-color:gray;text-align: center;padding: 8px;}</style></head><body><form action=\"/config.html\" method=\"post\"><center><table><tr><th colspan=\"2\"><center>Access Point</center></th></tr><tr><td>AP SSID:</td><td><input name=\"ap_ssid\" value=\"" + AP_SSID + "\"></td></tr><tr><td>AP PASSWORD:</td><td><input name=\"ap_pass\" value=\"********\"></td></tr><tr><td>AP IP:</td><td><input name=\"web_ip\" value=\"" + Server_IP.toString() + "\"></td></tr><tr><td>SUBNET MASK:</td><td><input name=\"subnet\" value=\"" + Subnet_Mask.toString() + "\"></td></tr><tr><td>START AP:</td><td><input type=\"checkbox\" name=\"useap\" " + tmpUa +"></td></tr><tr><th colspan=\"2\"><center>Web Server</center></th></tr><tr><td>WEBSERVER PORT:</td><td><input name=\"web_port\" value=\"" + String(WEB_PORT) + "\"></td></tr><tr><th colspan=\"2\"><center>Wifi Connection</center></th></tr><tr><td>WIFI SSID:</td><td><input name=\"wifi_ssid\" value=\"" + WIFI_SSID + "\"></td></tr><tr><td>WIFI PASSWORD:</td><td><input name=\"wifi_pass\" value=\"********\"></td></tr><tr><td>CONNECT WIFI:</td><td><input type=\"checkbox\" name=\"usewifi\" " + tmpCw + "></tr><tr><th colspan=\"2\"><center>Auto USB Wait</center></th></tr><tr><td>WAIT TIME(ms):</td><td><input name=\"usbwait\" value=\"" + USB_WAIT + "\"></td></tr></table><br><input id=\"savecfg\" type=\"submit\" value=\"Save Config\"></center></form></body></html>";
   request->send(200, "text/html", htmStr);
 }
-
 
 
 void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
@@ -366,16 +398,29 @@ void handleInfo(AsyncWebServerRequest *request)
   output += "SDK version: " + String(ESP.getSdkVersion()) + "<br>";
   output += "Chip Id: " + String(ESP.getChipModel()) + "<br><hr>";
   output += "###### CPU ######<br><br>";
-  output += "CPU frequency: " + String(ESP.getCpuFreqMHz()) + "MHz<br><hr>";
+  output += "CPU frequency: " + String(ESP.getCpuFreqMHz()) + "MHz<br>";
+  output += "Cores: " + String(ESP.getChipCores()) + "<br><hr>";
   output += "###### Flash chip information ######<br><br>";
   output += "Flash chip Id: " +  String(ESP.getFlashChipMode()) + "<br>";
   output += "Estimated Flash size: " + formatBytes(ESP.getFlashChipSize()) + "<br>";
   output += "Flash frequency: " + String(flashFreq) + " MHz<br>";
   output += "Flash write mode: " + String((ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN")) + "<br><hr>";
+  output += "###### Spiffs information ######<br><br>";
+  output += "Spiffs size: " + formatBytes(SPIFFS.totalBytes()) + "<br>";
+  output += "Used Space: " + formatBytes(SPIFFS.usedBytes()) + "<br>";
+  output += "Free Space: " + formatBytes(SPIFFS.totalBytes() - SPIFFS.usedBytes()) + "<br><hr>";
+  output += "###### PSRam information ######<br><br>";
+  output += "Psram Size: " + formatBytes(ESP.getPsramSize()) + "<br>";
+  output += "Free psram: " + formatBytes(ESP.getFreePsram()) + "<br>";
+  output += "Max alloc psram: " + formatBytes(ESP.getMaxAllocPsram()) + "<br><hr>";
+  output += "###### Ram information ######<br><br>";
+  output += "Ram size: " + formatBytes(ESP.getHeapSize()) + "<br>";
+  output += "Free ram: " + formatBytes(ESP.getFreeHeap()) + "<br>";
+  output += "Max alloc ram: " + formatBytes(ESP.getMaxAllocHeap()) + "<br><hr>";
   output += "###### Sketch information ######<br><br>";
   output += "Sketch hash: " + ESP.getSketchMD5() + "<br>";
   output += "Sketch size: " +  formatBytes(ESP.getSketchSize()) + "<br>";
-  output += "Free space available: " +  formatBytes(ESP.getFreeSketchSpace()) + "<br><hr>";
+  output += "Free space available: " +  formatBytes(ESP.getFreeSketchSpace() - ESP.getSketchSize()) + "<br><hr>";
   output += "</html>";
   request->send(200, "text/html", output);
 }
@@ -385,11 +430,14 @@ void writeConfig()
 {
   File iniFile = SPIFFS.open("/config.ini", "w");
   if (iniFile) {
-  iniFile.print("\r\nSSID=" + AP_SSID + "\r\nPASSWORD=" + AP_PASS + "\r\n\r\nWEBSERVER_IP=" + Server_IP.toString() + "\r\n\r\nSUBNET_MASK=" + Subnet_Mask.toString() + "\r\n");
+  String tmpua = "false";
+  String tmpcw = "false";
+  if (startAP){tmpua = "true";}
+  if (connectWifi){tmpcw = "true";}
+  iniFile.print("\r\nAP_SSID=" + AP_SSID + "\r\nAP_PASS=" + AP_PASS + "\r\nWEBSERVER_IP=" + Server_IP.toString() + "\r\nWEBSERVER_PORT=" + String(WEB_PORT) + "\r\nSUBNET_MASK=" + Subnet_Mask.toString() + "\r\nWIFI_SSID=" + WIFI_SSID + "\r\nWIFI_PASS=" + WIFI_PASS + "\r\nUSEAP=" + tmpua + "\r\nCONWIFI=" + tmpcw + "\r\nUSBWAIT=" + USB_WAIT + "\r\n");
   iniFile.close();
   }
 }
-
 
 void setup(){
   //HWSerial.begin(115200);
@@ -432,7 +480,53 @@ void setup(){
     strsIp.trim();
     Subnet_Mask.fromString(strsIp);
    }
+   
+   if(instr(iniData,"WIFI_SSID="))
+   {
+   WIFI_SSID = split(iniData,"WIFI_SSID=","\r\n");
+   WIFI_SSID.trim();
+   }
+   
+   if(instr(iniData,"WIFI_PASS="))
+   {
+   WIFI_PASS = split(iniData,"WIFI_PASS=","\r\n");
+   WIFI_PASS.trim();
+   }
+
+   if(instr(iniData,"USEAP="))
+   {
+    String strua = split(iniData,"USEAP=","\r\n");
+    strua.trim();
+    if (strua.equals("true"))
+    {
+      startAP = true;
     }
+    else
+    {
+      startAP = false;
+    }
+   }
+
+   if(instr(iniData,"CONWIFI="))
+   {
+    String strcw = split(iniData,"CONWIFI=","\r\n");
+    strcw.trim();
+    if (strcw.equals("true"))
+    {
+      connectWifi = true;
+    }
+    else
+    {
+      connectWifi = false;
+    }
+   }
+   if(instr(iniData,"USBWAIT="))
+   {
+    String strusw = split(iniData,"USBWAIT=","\r\n");
+    strusw.trim();
+    USB_WAIT = strusw.toInt();
+   }
+   }
   }
   else
   {
@@ -444,16 +538,51 @@ void setup(){
     //HWSerial.println("No SPIFFS");
   }
 
+  if (startAP)
+  {
+    //HWSerial.println("SSID: " + AP_SSID);
+    //HWSerial.println("Password: " + AP_PASS);
+    //HWSerial.println("");
+    //HWSerial.println("WEB Server IP: " + Server_IP.toString());
+    //HWSerial.println("Subnet: " + Subnet_Mask.toString());
+    //HWSerial.println("WEB Server Port: " + String(WEB_PORT));
+    //HWSerial.println("");
+    WiFi.softAPConfig(Server_IP, Server_IP, Subnet_Mask);
+    WiFi.softAP(AP_SSID.c_str(), AP_PASS.c_str());
+    //HWSerial.println("WIFI AP started");
+    dnsServer.setTTL(30);
+    dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+    dnsServer.start(53, "*", Server_IP);
+    //HWSerial.println("DNS server started");
+    //HWSerial.println("DNS Server IP: " + Server_IP.toString());
+  }
 
-  WiFi.mode(WIFI_AP);
-  WiFi.softAPConfig(Server_IP, Server_IP, Subnet_Mask);
-  WiFi.softAP(AP_SSID.c_str(), AP_PASS.c_str());
-  //HWSerial.println("WIFI AP started");
-
-  dnsServer.setTTL(30);
-  dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
-  dnsServer.start(53, "*", Server_IP);
-  //HWSerial.println("DNS server started");
+  if (connectWifi && WIFI_SSID.length() > 0 && WIFI_PASS.length() > 0)
+  {
+    WiFi.setAutoConnect(true); 
+    WiFi.setAutoReconnect(true);
+    WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
+    //HWSerial.println("WIFI connecting");
+    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+      //HWSerial.println("Wifi failed to connect");
+    } else {
+      IPAddress LAN_IP = WiFi.localIP(); 
+      if (LAN_IP)
+      {
+        //HWSerial.println("Wifi Connected");
+        //HWSerial.println("WEB Server LAN IP: " + LAN_IP.toString());
+        //HWSerial.println("WEB Server Port: " + String(WEB_PORT));
+        if (!startAP)
+        {
+          dnsServer.setTTL(30);
+          dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+          dnsServer.start(53, "*", LAN_IP);
+          //HWSerial.println("DNS server started");
+          //HWSerial.println("DNS Server IP: " + LAN_IP.toString());
+        }
+      }
+    }
+  }
 
 
   server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -512,7 +641,7 @@ void setup(){
   });
 
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
-     request->send(200, "text/css", styleData);
+   request->send(200, "text/css", styleData);
   });
 
   server.on("/usbon", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -556,6 +685,10 @@ void setup(){
      }	 
      if (path.endsWith("payloads.html"))
      {
+        #if INTHEN && AUTOHEN
+        request->send(200, "text/html", autohenData);
+        return;
+        #endif
         handlePayloads(request);
         return;
      }
@@ -604,11 +737,6 @@ void setup(){
 }
 
 
-static int32_t onWrite(uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize){
-  return bufsize;
-}
-
-
 static int32_t onRead(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize){
   if (lba > 4){lba = 4;}
   memcpy(buffer, exfathax[lba] + offset, bufsize);
@@ -616,19 +744,12 @@ static int32_t onRead(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufs
 }
 
 
-static bool onStartStop(uint8_t power_condition, bool start, bool load_eject){
-  return true;
-}
-
- 
 void enableUSB()
 {
   dev.vendorID("PS4");
   dev.productID("ESP32 Server");
   dev.productRevision("1.0");
-  dev.onStartStop(onStartStop);
   dev.onRead(onRead);
-  dev.onWrite(onWrite);
   dev.mediaPresent(true);
   dev.begin(8192, 512);
   USB.begin();
