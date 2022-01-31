@@ -1,12 +1,10 @@
 # ESP32 Server 9.00u
 
-<br><br>
+<br>
 
 This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
 
-`the boards that it works on need to be tested and confirmed as some boards may not be plug and play.`
-
-these boards look like the best contenders for a plug and play setup(no wiring)<br>
+these boards can be used for a plug and play setup(no wiring)<br>
 
 <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-s2-devkitc-1.html>ESP32-S2-DevKitC-1</a><br>
@@ -14,7 +12,7 @@ these boards look like the best contenders for a plug and play setup(no wiring)<
 
 <br>
 
-these boards below will need a usb A plug wired up to them.<br>
+these boards will need a usb A plug wired up to them.<br>
 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32-S2-DevKitM-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-devkitm-1.jpg>Diagram</a><br>
 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-saola-1-v1.2.html>ESP32-S2-Saola-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-saola-1.jpg>Diagram</a><br>
 
