@@ -267,6 +267,9 @@ void handlePayloads(AsyncWebServerRequest *request) {
   File file = dir.openNextFile();
   while(file){
     String fname = String(file.name());
+    if (fname.endsWith(".gz")) {
+        fname = fname.substring(0, fname.length() - 3);
+    }
     if (fname.length() > 0 && fname.endsWith(".bin"))
     {
       payloadCount++;
@@ -656,7 +659,8 @@ void setup(){
   
 #if INTHEN
   server.on("/gldhen.bin", HTTP_GET, [](AsyncWebServerRequest *request){
-   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen, sizeof(goldhen));
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen_gz, sizeof(goldhen_gz));
+   response->addHeader("Content-Encoding", "gzip");
    request->send(response);
   });
 #endif
@@ -714,7 +718,8 @@ void setup(){
 
 #if INTHEN
   if (path.endsWith("gldhen.bin")){
-   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen, sizeof(goldhen));
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen_gz, sizeof(goldhen_gz));
+   response->addHeader("Content-Encoding", "gzip");
    request->send(response);
    return;
   }
