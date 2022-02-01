@@ -4,7 +4,7 @@
 
 This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
 
-it is for the <a href=https://github.com/ChendoChap/pOOBs4>9.00 pOOBs4 exploit</a> and the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32 S2</a> boards, it <b>will not work on the original ESP32 boards</b> as they do not support the usb functions required by this project.
+it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit</a> and the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32 S2</a> boards, it <b>will not work on the original ESP32 boards</b> as they do not support the usb functions required by this project.
 
 you do not need a usb drive with this project as it emulates a usb mass storage device to the console and triggers a filesystem bug to leverage the exploit(exfathax).
 
