@@ -10,9 +10,11 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 
 <br>
 
-<hr>`these boards can be used for a plug and play setup(no wiring)`<br>
+<hr>
+`these boards can be used for a plug and play setup(no wiring)`
 <br>
-4MB boards<br>
+`4MB boards`
+<br>
 
 <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
 <a href=https://unexpectedmaker.com/tinys2>TinyS2</a><br>
@@ -20,14 +22,17 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3">ESP32-S2 ESP32-S2-WOOR</a><br>
 <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">ESP32-S2 ESP32-S2 TF Card Slot</a><br>
 
-16MB Boards<br>
+`16MB boards`
+<br>
 <a href=https://feathers2.io/>FeatherS2</a><br>
 
 <br>
 
-<hr>`these boards will need a usb A plug wired up to them.`<br>
+<hr>
+`these boards will need a usb A plug wired up to them.`
 <br>
-4MB boards<br>
+`4MB boards`
+<br>
 
 ✅ <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32-S2-DevKitM-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-devkitm-1.jpg>Diagram</a><br>
 ✅ <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-saola-1-v1.2.html>ESP32-S2-Saola-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-saola-1.jpg>Diagram</a><br>
