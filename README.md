@@ -10,7 +10,7 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 
 <br>
 
-<hr> ` these boards can be used for a plug and play setup(no wiring) ` <br>
+<hr>these boards can be used for a plug and play setup(no wiring)<br>
 <br>
 4MB boards<br>
 
@@ -25,7 +25,7 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 
 <br>
 
-<hr> ` these boards will need a usb A plug wired up to them. ` <br>
+<hr>these boards will need a usb A plug wired up to them.<br>
 <br>
 4MB boards<br>
 
