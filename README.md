@@ -12,6 +12,7 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 
 <hr>these boards can be used for a plug and play setup(no wiring)<br>
 
+
 4MB boards<br>
 
 <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
