@@ -4,6 +4,12 @@
 
 This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
 
+it is for the <a href=https://github.com/ChendoChap/pOOBs4>9.00 pOOBs4 exploit</a> and the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32 S2</a> boards, it <b>will not work on the original ESP32 boards</b> as they do not support the usb functions required by this project.
+
+you do not need a usb drive with this project as it emulates a usb mass storage device to the console and triggers a filesystem bug to leverage the exploit(exfathax).
+
+<br>
+
 these boards can be used for a plug and play setup(no wiring)<br>
 
 <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
@@ -34,10 +40,6 @@ then goto the "<b>Boards Manager</b> and install or update the "<b>esp32</b>" co
 
 <br>
 
-this is for the 9.00 exploit and the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32 S2</a> boards, it <b>will not work on the original ESP32 boards</b> as they do not support the usb functions required by this project.
-
-you do not need a usb drive with this project as it emulates a usb mass storage device to the console and triggers a filesystem bug to leverage the exploit(exfathax).
-
 the only files required on the spiffs storage of the esp32 are the .bin payloads, everything else is handled internally including generating a list of payloads.
 
 you can still modify the html by uploading your own index.html, if there is no index.html on the spiffs storage the internal pages will be used.
@@ -48,9 +50,6 @@ the firmware is updatable via http and the payload files can be managed via http
 
 you can access the main page from the userguide or the consoles webbrowser using any hostname.
 
-
-
-<br>
 <br>
 
 
