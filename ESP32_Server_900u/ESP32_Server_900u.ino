@@ -15,7 +15,7 @@
                     // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen
 
                       // enable autohen [ true / false ]
-#define AUTOHEN false // this will load goldhen instead of the normal index/payload selection page.
+#define AUTOHEN false // this will load goldhen instead of the normal index/payload selection page, use this if you only want hen and no other payloads.
                       // INTHEN must be set to true for this to work       
                      
 #if INTHEN
