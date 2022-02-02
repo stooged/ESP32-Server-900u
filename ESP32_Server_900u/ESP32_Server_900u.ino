@@ -169,7 +169,7 @@ void handleFwUpdate(AsyncWebServerRequest *request, String filename, size_t inde
         request->send(500, "text/plain", "Internal Server Error");
         return;
       }
-      if (!filename.equals("fwupdate32.bin")) {
+      if (!filename.equals("fwupdate.bin")) {
         sendwebmsg(request, "Invalid update file: " + filename);
         return;
       }
