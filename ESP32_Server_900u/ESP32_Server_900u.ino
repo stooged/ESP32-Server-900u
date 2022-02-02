@@ -19,7 +19,6 @@
                       // INTHEN must be set to true for this to work       
                      
 #if INTHEN
-#define INTHEN_NAME "GoldHEN v2.1"
 #include "goldhen.h"
 #endif
 
