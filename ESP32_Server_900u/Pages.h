@@ -269,4 +269,11 @@ display: block;
 .sidenav a:hover {
 color: #1451AE;
 }
+
+msg {
+color: #ffffff; 
+font-weight: 
+normal; 
+text-shadow: none;
+}
 )==";

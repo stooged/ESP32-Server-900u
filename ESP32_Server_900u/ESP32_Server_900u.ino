@@ -244,7 +244,7 @@ void handleFileMan(AsyncWebServerRequest *request) {
   }
   if (fileCount == 0)
   {
-      output += "<p><center>No files found<br>You can upload files using the \"File Uploader\" page.</center></p>";
+      output += "<p><center>No files found<br>You can upload files using the <a href=\"/upload.html\" target=\"mframe\"><u>File Uploader</u></a> page.</center></p>";
   }
   output += "</table></body></html>";
   request->send(200, "text/html", output);
@@ -289,7 +289,7 @@ void handlePayloads(AsyncWebServerRequest *request) {
   }
   if (payloadCount == 0)
   {
-      output += "No .bin payloads found<br>You need to upload the payloads to the ESP32 board.<br>in the arduino ide select <b>Tools</b> &gt; <b>ESP32 Sketch Data Upload</b></center></body></html>";
+      output += "<msg>No .bin payloads found<br>You need to upload the payloads to the ESP32 board.<br>in the arduino ide select <b>Tools</b> &gt; <b>ESP32 Sketch Data Upload</b><br>or<br>Using a pc/laptop connect to <b>" + AP_SSID + "</b> and navigate to <a href=\"/admin.html\"><u>http://" + WIFI_HOSTNAME + "/admin.html</u></a> and upload the .bin payloads using the <b>File Uploader</b></msg></center></body></html>";
   }
   output += "</center></body></html>";
   request->send(200, "text/html", output);
