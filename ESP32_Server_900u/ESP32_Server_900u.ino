@@ -3,6 +3,7 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #include <DNSServer.h>
+#include <ESPmDNS.h>
 #include <Update.h>
 #include "Loader.h"
 #include "Pages.h"
@@ -584,6 +585,9 @@ void setup(){
         //HWSerial.println("WEB Server LAN IP: " + LAN_IP.toString());
         //HWSerial.println("WEB Server Port: " + String(WEB_PORT));
         //HWSerial.println("WEB Server Hostname: " + WIFI_HOSTNAME);
+        String mdnsHost = WIFI_HOSTNAME;
+        mdnsHost.replace(".local","");
+        MDNS.begin(mdnsHost.c_str());
         if (!startAP)
         {
           dnsServer.setTTL(30);

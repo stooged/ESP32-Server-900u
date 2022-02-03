@@ -21,7 +21,7 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3">ESP32-S2 ESP32-S2-WOOR</a><br>
 <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">ESP32-S2 ESP32-S2 TF Card Slot</a><br>
 
-16MB Boards<br>
+16MB boards<br>
 <a href=https://feathers2.io/>FeatherS2</a><br>
 
 <br>
