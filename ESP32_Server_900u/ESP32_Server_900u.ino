@@ -689,61 +689,37 @@ void setup(){
         handleConsoleUpdate(Region, request);
         return;
     }
-
-     if (path.endsWith("index.html") || path.endsWith("index.htm") || path.endsWith("/"))
-     {
+    if (instr(path,"/document/") && instr(path,"/ps4/"))
+    {
+        request->redirect("http://" + WIFI_HOSTNAME + "/index.html");
+        return;
+    }
+    if (path.endsWith("index.html") || path.endsWith("index.htm") || path.endsWith("/"))
+    {
         request->send(200, "text/html", indexData);
         return;
-     }
-     if (path.endsWith("style.css"))
-     {
+    }
+    if (path.endsWith("style.css"))
+    {
         request->send(200, "text/css", styleData);
         return;
-     }	 
-     if (path.endsWith("payloads.html"))
-     {
+    }	 
+    if (path.endsWith("payloads.html"))
+    {
         #if INTHEN && AUTOHEN
-        request->send(200, "text/html", autohenData);
-        return;
+          request->send(200, "text/html", autohenData);
+        #else
+          handlePayloads(request);
         #endif
-        handlePayloads(request);
         return;
-     }
-     if (path.endsWith("loader.html"))
-     {
+    }
+    if (path.endsWith("loader.html"))
+    {
         AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", loader_gz, sizeof(loader_gz));
         response->addHeader("Content-Encoding", "gzip");
         request->send(response);
         return;
-     }
-     if (path.endsWith("usbon"))
-     {
-        enableUSB();
-        request->send(200, "text/plain", "ok");
-        return;
-     }
-     if (path.endsWith("usboff"))
-     {
-        disableUSB();
-        request->send(200, "text/plain", "ok");
-        return;
-     }
-
-#if INTHEN
-  if (path.endsWith("gldhen.bin")){
-   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen_gz, sizeof(goldhen_gz));
-   response->addHeader("Content-Encoding", "gzip");
-   request->send(response);
-   return;
-  }
-#endif
-
-     if (instr(path,"/document/") && instr(path,"/ps4/"))
-     {
-        path.replace("/document/" + split(path,"/document/","/ps4/") + "/ps4/", "/");
-        request->send(SPIFFS, path, getContentType(path));
-        return;
-     }
+    }
     request->send(404);
   });
 
