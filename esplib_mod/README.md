@@ -9,13 +9,13 @@ the <a href=https://github.com/espressif/arduino-esp32>ESP32 library</a> does no
 
 to install
 
-place the contents of the partitions folder inside the following folder
+place the contents of the <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod/partitions>partitions</a> folder inside the following folder
 
 `C:\Users\***PCUSERNAME**\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\tools\partitions\`
 
 
 
-place the contents of the 2.0.2 folder inside the following folder and select yes to overwrite 
+place the contents of the <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod/2.0.2>2.0.2</a> folder inside the following folder and select yes to overwrite 
 
 `C:\Users\***PCUSERNAME**\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\`
 
