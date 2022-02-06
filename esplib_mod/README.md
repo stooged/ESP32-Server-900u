@@ -1,7 +1,7 @@
 # ESP32 Partition Modification
 
 
-this is for the 16MB <a href=https://feathers2.io/>FeatherS2</a><br> board with 16mb of flash, it will do nothing for other boards.
+this is for the 16MB <a href=https://feathers2.io/>FeatherS2</a> board with 16mb of flash, it will do nothing for other boards.
 
 the <a href=https://github.com/espressif/arduino-esp32>ESP32 library</a> does not have support for large spiffs partitions so have created a few tables to enable large spiffs on the 16mb feather board.
 
