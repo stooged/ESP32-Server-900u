@@ -14,7 +14,7 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 <br>
 4MB boards<br>
 
-&nbsp; &nbsp; &nbsp; <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
+✅ <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
 ✅ <a href=https://unexpectedmaker.com/tinys2>TinyS2</a><br>
 ✅ <a href="https://www.adafruit.com/product/5325">Adafruit QT Py ESP32-S2</a><br>
 ✅ <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-s2-devkitc-1.html>ESP32-S2-DevKitC-1</a><br>
@@ -22,7 +22,8 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 &nbsp; &nbsp; &nbsp; <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">ESP32-S2 ESP32-S2 TF Card Slot</a><br>
 
 16MB boards<br>
-✅ <a href=https://feathers2.io/>FeatherS2</a><br>
+✅ <a href=https://feathers2.io/>FeatherS2</a><br> 
+FeatherS2 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod>Partition info</a>
 
 <br>
 
