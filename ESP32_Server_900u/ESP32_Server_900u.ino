@@ -235,7 +235,7 @@ void handleFileMan(AsyncWebServerRequest *request) {
     output += "<tr>";
     output += "<td><a href=\"" +  fname + "\">" + fname + "</a></td>";
     output += "<td>" + formatBytes(file.size()) + "</td>";
-    output += "<td><form action=\"/" + fname + "\" method=\"get\"><button type=\"submit\">Download</button></form></td>";
+    output += "<td><a href=\"/" + fname + "\" download><button type=\"submit\">Download</button></a></td>";
     output += "<td><form action=\"/delete\" method=\"post\"><button type=\"submit\" name=\"file\" value=\"" + fname + "\" onClick=\"return statusDel('" + fname + "');\">Delete</button></form></td>";
     output += "</tr>";
     }
