@@ -54,9 +54,9 @@ then goto the "<b>Boards Manager</b> and install or update the "<b>esp32</b>" co
 
 <br>
 
-the only files required on the spiffs storage of the esp32 are the .bin payloads, everything else is handled internally including generating a list of payloads.
+the only files required on the storage of the esp32 are the .bin payloads, everything else is handled internally including generating a list of payloads.
 
-you can still modify the html by uploading your own index.html, if there is no index.html on the spiffs storage the internal pages will be used.
+you can still modify the html by uploading your own index.html, if there is no index.html on the storage the internal pages will be used.
 
 if you have problems compiling the sketch make sure the <a href=https://github.com/espressif/arduino-esp32>ESP32 library</a> is up to date.
 
