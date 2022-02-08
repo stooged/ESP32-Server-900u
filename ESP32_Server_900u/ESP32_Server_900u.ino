@@ -1,7 +1,6 @@
 #include <FS.h>
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
-#include "SPIFFS.h"
 #include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
@@ -11,14 +10,27 @@
 #include "USB.h"
 #include "USBMSC.h"
 
+                     // use FatFS not SPIFFS [ true / false ]
+#define USEFAT false // FatFS will be used instead of SPIFFS for the storage filesystem.
+                     // you must select a FAT or FATFS partition scheme with this enabled.
+
                     // enable internal goldhen.h [ true / false ]
-#define INTHEN true // goldhen is placed in the app partition to free up space on spiffs for other payloads, target partition scheme: [No OTA (1MB APP/3MB SPIFFS)]
+#define INTHEN true // goldhen is placed in the app partition to free up space on the storage for other payloads, target partition scheme: [No OTA (1MB APP/3MB ...)]
                     // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen
 
                       // enable autohen [ true / false ]
 #define AUTOHEN false // this will load goldhen instead of the normal index/payload selection page, use this if you only want hen and no other payloads.
                       // INTHEN must be set to true for this to work       
-                     
+
+
+#if USEFAT
+#include "FFat.h"
+#define FILESYS FFat 
+#else
+#include "SPIFFS.h"
+#define FILESYS SPIFFS 
+#endif
+
 #if INTHEN
 #include "goldhen.h"
 #endif
@@ -214,8 +226,8 @@ void handleDelete(AsyncWebServerRequest *request){
     request->redirect("/fileman.html"); 
     return;
   }
-  if (SPIFFS.exists("/" + path) && path != "/" && !path.equals("config.ini")) {
-    SPIFFS.remove("/" + path);
+  if (FILESYS.exists("/" + path) && path != "/" && !path.equals("config.ini")) {
+    FILESYS.remove("/" + path);
   }
   request->redirect("/fileman.html"); 
 }
@@ -223,7 +235,7 @@ void handleDelete(AsyncWebServerRequest *request){
 
 
 void handleFileMan(AsyncWebServerRequest *request) {
-  File dir = SPIFFS.open("/");
+  File dir = FILESYS.open("/");
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;}</style><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }}</script></head><body><br><table>"; 
   int fileCount = 0;
   File file = dir.openNextFile();
@@ -252,7 +264,7 @@ void handleFileMan(AsyncWebServerRequest *request) {
 
 
 void handlePayloads(AsyncWebServerRequest *request) {
-  File dir = SPIFFS.open("/");
+  File dir = FILESYS.open("/");
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>ESP Server</title><link rel=\"stylesheet\" href=\"style.css\"><style>body { background-color: #1451AE; color: #ffffff; font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; overflow-y:hidden; text-shadow: 3px 2px DodgerBlue;}</style><script>function setpayload(payload,title,waittime){ sessionStorage.setItem('payload', payload); sessionStorage.setItem('title', title); sessionStorage.setItem('waittime', waittime);  window.open('loader.html', '_self');}</script></head><body><center><h1>9.00 Payloads</h1>";
   int cntr = 0;
   int payloadCount = 0;
@@ -319,7 +331,7 @@ void handleConfig(AsyncWebServerRequest *request)
     if (request->hasParam("useap", true)){tmpua = "true";}
     if (request->hasParam("usewifi", true)){tmpcw = "true";}
     int USB_WAIT = request->getParam("usbwait", true)->value().toInt();
-    File iniFile = SPIFFS.open("/config.ini", "w");
+    File iniFile = FILESYS.open("/config.ini", "w");
     if (iniFile) {
     iniFile.print("\r\nAP_SSID=" + AP_SSID + "\r\nAP_PASS=" + AP_PASS + "\r\nWEBSERVER_IP=" + tmpip + "\r\nWEBSERVER_PORT=" + tmpwport + "\r\nSUBNET_MASK=" + tmpsubn + "\r\nWIFI_SSID=" + WIFI_SSID + "\r\nWIFI_PASS=" + WIFI_PASS + "\r\nWIFI_HOST=" + WIFI_HOSTNAME + "\r\nUSEAP=" + tmpua + "\r\nCONWIFI=" + tmpcw + "\r\nUSBWAIT=" + USB_WAIT + "\r\n");
     iniFile.close();
@@ -369,7 +381,7 @@ void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t in
       if (filename.equals("/config.ini"))
       {return;}
       //HWSerial.printf("Upload Start: %s\n", filename.c_str());
-      upFile = SPIFFS.open(filename, "w");
+      upFile = FILESYS.open(filename, "w");
       }
     if(upFile){
         upFile.write(data, len);
@@ -410,10 +422,15 @@ void handleInfo(AsyncWebServerRequest *request)
   output += "Estimated Flash size: " + formatBytes(ESP.getFlashChipSize()) + "<br>";
   output += "Flash frequency: " + String(flashFreq) + " MHz<br>";
   output += "Flash write mode: " + String((ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN")) + "<br><hr>";
-  output += "###### Spiffs information ######<br><br>";
-  output += "Spiffs size: " + formatBytes(SPIFFS.totalBytes()) + "<br>";
-  output += "Used Space: " + formatBytes(SPIFFS.usedBytes()) + "<br>";
-  output += "Free Space: " + formatBytes(SPIFFS.totalBytes() - SPIFFS.usedBytes()) + "<br><hr>";
+  output += "###### Storage information ######<br><br>";
+#if USEFAT
+  output += "Filesystem: FatFs<br>";
+#else
+  output += "Filesystem: SPIFFS<br>";
+#endif
+  output += "Total Size: " + formatBytes(FILESYS.totalBytes()) + "<br>";
+  output += "Used Space: " + formatBytes(FILESYS.usedBytes()) + "<br>";
+  output += "Free Space: " + formatBytes(FILESYS.totalBytes() - FILESYS.usedBytes()) + "<br><hr>";
   output += "###### PSRam information ######<br><br>";
   output += "Psram Size: " + formatBytes(ESP.getPsramSize()) + "<br>";
   output += "Free psram: " + formatBytes(ESP.getFreePsram()) + "<br>";
@@ -433,7 +450,7 @@ void handleInfo(AsyncWebServerRequest *request)
 
 void writeConfig()
 {
-  File iniFile = SPIFFS.open("/config.ini", "w");
+  File iniFile = FILESYS.open("/config.ini", "w");
   if (iniFile) {
   String tmpua = "false";
   String tmpcw = "false";
@@ -449,9 +466,9 @@ void setup(){
   //HWSerial.println("Version: " + firmwareVer);
   //USBSerial.begin();
   
-  if (SPIFFS.begin(true)) {
-  if (SPIFFS.exists("/config.ini")) {
-  File iniFile = SPIFFS.open("/config.ini", "r");
+  if (FILESYS.begin(true)) {
+  if (FILESYS.exists("/config.ini")) {
+  File iniFile = FILESYS.open("/config.ini", "r");
   if (iniFile) {
   String iniData;
     while (iniFile.available()) {
@@ -546,7 +563,7 @@ void setup(){
   }
   else
   {
-    //HWSerial.println("No SPIFFS");
+    //HWSerial.println("Filesystem failed to mount");
   }
 
   if (startAP)
@@ -678,7 +695,7 @@ void setup(){
   });
 #endif
 
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  server.serveStatic("/", FILESYS, "/").setDefaultFile("index.html");
 
   server.onNotFound([](AsyncWebServerRequest *request){
     //HWSerial.println(request->url());
@@ -703,7 +720,7 @@ void setup(){
     {
         request->send(200, "text/css", styleData);
         return;
-    }	 
+    }   
     if (path.endsWith("payloads.html"))
     {
         #if INTHEN && AUTOHEN

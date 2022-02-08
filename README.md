@@ -98,9 +98,9 @@ on the side menu of the admin page select <b>File Uploader</b> and then click <b
 you can then goto <b>Config Editor</b> and change the password for the wifi ap.
 
 
-alternatively if you install this <a href=https://github.com/etherfi/arduino-esp32fs-plugin-esp32s2>plugin</a> to the arduino ide you can upload the files to the esp32-s2 with the arduino ide by selecting <b>Tools > ESP32 Sketch Data Upload</b>
+alternatively if you install this <a href=https://github.com/stooged/arduino-esp32fs-plugin>plugin</a> to the arduino ide you can upload the files to the esp32-s2 with the arduino ide by selecting <b>Tools > ESP32 Sketch Data Upload</b>
 
-<a href=https://github.com/etherfi/arduino-esp32fs-plugin-esp32s2>Arduino ESP32-S2 filesystem uploader</a>
+<a href=https://github.com/stooged/arduino-esp32fs-plugin>Arduino ESP32-S2 filesystem uploader</a>
 
 <img src=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/dataup.jpg><br><br>
 

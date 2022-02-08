@@ -7,6 +7,10 @@ the <a href=https://github.com/espressif/arduino-esp32>ESP32 library</a> does no
 
 <br>
 
+you can use a FatFS/Fat partiton to get more storage space and this mod is not needed but if you want to use spiffs then install this mod.
+
+<br>
+
 to install
 
 place the contents of the <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod/partitions>partitions</a> folder inside the following folder
