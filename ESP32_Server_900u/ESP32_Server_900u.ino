@@ -15,12 +15,12 @@
                      // you must select a partition scheme labeled with "FAT" or "FATFS" with this enabled.
 
                     // enable internal goldhen.h [ true / false ]
-#define INTHEN true // goldhen is placed in the app partition to free up space on the storage for other payloads, target partition scheme: [No OTA (1MB APP/3MB ...)]
-                    // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen
+#define INTHEN true // goldhen is placed in the app partition to free up space on the storage for other payloads.
+                    // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen.
 
                       // enable autohen [ true / false ]
 #define AUTOHEN false // this will load goldhen instead of the normal index/payload selection page, use this if you only want hen and no other payloads.
-                      // INTHEN must be set to true for this to work       
+                      // INTHEN must be set to true for this to work.
 
 
 #if USEFAT
