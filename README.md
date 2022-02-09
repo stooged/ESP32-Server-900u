@@ -22,7 +22,7 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 &nbsp; &nbsp; &nbsp; <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">ESP32-S2 ESP32-S2 TF Card Slot</a><br>
 
 16MB boards<br>
-✅ <a href=https://feathers2.io/>FeatherS2</a> Partition <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod>info</a><br>
+✅ <a href=https://feathers2.io/>FeatherS2</a><br>
 
 <br>
 
