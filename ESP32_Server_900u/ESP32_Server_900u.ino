@@ -11,8 +11,8 @@
 #include "USBMSC.h"
 
                      // use FatFS not SPIFFS [ true / false ]
-#define USEFAT false // FatFS will be used instead of SPIFFS for the storage filesystem.
-                     // you must select a FAT or FATFS partition scheme with this enabled.
+#define USEFAT false // FatFS will be used instead of SPIFFS for the storage filesystem or for larger partitons on boards with more than 4mb flash.
+                     // you must select a partition scheme labeled with "FAT" or "FATFS" with this enabled.
 
                     // enable internal goldhen.h [ true / false ]
 #define INTHEN true // goldhen is placed in the app partition to free up space on the storage for other payloads, target partition scheme: [No OTA (1MB APP/3MB ...)]
