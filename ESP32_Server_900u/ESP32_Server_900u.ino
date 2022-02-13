@@ -10,7 +10,7 @@
 #include "USBMSC.h"
 #include "exfathax.h"
 #elif defined(CONFIG_IDF_TARGET_ESP32)  // ESP32 BOARDS
-#define USBCONTROL false // set to true if you are using usb control
+#define USBCONTROL false // set to true if you are using usb control(wired up usb drive)
 #define usbPin 4  // set the pin you want to use for usb control
 #else
 #error "Selected board not supported"
@@ -416,7 +416,7 @@ void handleConsoleUpdate(String rgn, AsyncWebServerRequest *request)
   request->send(200, "text/xml", xmlStr);
 }
 
-#if defined(CONFIG_IDF_TARGET_ESP32) 
+#if !USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32) 
 void handleCacheManifest(AsyncWebServerRequest *request) {
   #if !USBCONTROL
   String output = "CACHE MANIFEST\r\n";
@@ -683,7 +683,7 @@ void setup(){
   server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send(200, "text/plain", "Microsoft Connect Test");
   });
-#if defined(CONFIG_IDF_TARGET_ESP32) 
+#if !USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32) 
   server.on("/cache.manifest", HTTP_GET, [](AsyncWebServerRequest *request){
    handleCacheManifest(request);
   });
@@ -783,11 +783,13 @@ void setup(){
         request->send(200, "text/css", styleData);
         return;
     }   
+#if !USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)    
     if (path.endsWith("menu.html"))
     {
         request->send(200, "text/html", menuData);
         return;
     }
+#endif    
     if (path.endsWith("payloads.html"))
     {
         #if INTHEN && AUTOHEN

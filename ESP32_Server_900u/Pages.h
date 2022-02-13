@@ -163,7 +163,6 @@ body {
 </script>
 </html>
 )==";
-#endif
 
 
 static const char menuData[] PROGMEM = R"==(
@@ -230,7 +229,7 @@ if (window.location.pathname.startsWith("/document/"))
 </body>
 </html>
 )==";
-
+#endif
 
 static const char rebootingData[] PROGMEM = R"==(
 <!DOCTYPE html><html>
