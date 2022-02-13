@@ -4,11 +4,20 @@
 #include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
-#include "Loader.h"
-#include "Pages.h"
-#include "exfathax.h"
+
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3) // ESP32-S2/S3 BOARDS(usb emulation)
 #include "USB.h"
 #include "USBMSC.h"
+#include "exfathax.h"
+#elif defined(CONFIG_IDF_TARGET_ESP32)  // ESP32 BOARDS
+#define USBCONTROL false // set to true if you are using usb control
+#define usbPin 4  // set the pin you want to use for usb control
+#else
+#error "Selected board not supported"
+#endif
+
+#include "Loader.h"
+#include "Pages.h"
 
                      // use FatFS not SPIFFS [ true / false ]
 #define USEFAT false // FatFS will be used instead of SPIFFS for the storage filesystem or for larger partitons on boards with more than 4mb flash.
@@ -41,7 +50,9 @@
 #define USBSerial Serial
 #else
 #define HWSerial Serial
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 USBCDC USBSerial;
+#endif
 #endif
 */
 
@@ -73,8 +84,9 @@ AsyncWebServer server(WEB_PORT);
 boolean hasEnabled = false;
 long enTime = 0;
 File upFile;
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 USBMSC dev;
-
+#endif
 
 String split(String str, String from, String to)
 {
@@ -404,6 +416,53 @@ void handleConsoleUpdate(String rgn, AsyncWebServerRequest *request)
   request->send(200, "text/xml", xmlStr);
 }
 
+#if defined(CONFIG_IDF_TARGET_ESP32) 
+void handleCacheManifest(AsyncWebServerRequest *request) {
+  #if !USBCONTROL
+  String output = "CACHE MANIFEST\r\n";
+  File dir = FILESYS.open("/");
+  File file = dir.openNextFile();
+  while(file){
+    String fname = String(file.name());
+    if (fname.length() > 0 && !fname.equals("config.ini"))
+    {
+      if (fname.endsWith(".gz")) {
+        fname = fname.substring(0, fname.length() - 3);
+      }
+     output += urlencode(fname) + "\r\n";
+    }
+     file.close();
+     file = dir.openNextFile();
+  }
+  if(!instr(output,"index.html\r\n"))
+  {
+    output += "index.html\r\n";
+  }
+  if(!instr(output,"menu.html\r\n"))
+  {
+    output += "menu.html\r\n";
+  }
+  if(!instr(output,"loader.html\r\n"))
+  {
+    output += "loader.html\r\n";
+  }
+  if(!instr(output,"payloads.html\r\n"))
+  {
+    output += "payloads.html\r\n";
+  }
+  if(!instr(output,"style.css\r\n"))
+  {
+    output += "style.css\r\n";
+  }
+#if INTHEN
+  output += "gldhen.bin\r\n";
+#endif
+   request->send(200, "text/cache-manifest", output);
+  #else
+   request->send(404);
+  #endif
+}
+#endif
 
 void handleInfo(AsyncWebServerRequest *request)
 {
@@ -412,9 +471,10 @@ void handleInfo(AsyncWebServerRequest *request)
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>System Information</title><link rel=\"stylesheet\" href=\"style.css\"></head>";
   output += "<hr>###### Software ######<br><br>";
   output += "Firmware version " + firmwareVer + "<br>";
-  output += "SDK version: " + String(ESP.getSdkVersion()) + "<br>";
-  output += "Chip Id: " + String(ESP.getChipModel()) + "<br><hr>";
-  output += "###### CPU ######<br><br>";
+  output += "SDK version: " + String(ESP.getSdkVersion()) + "<br><hr>";
+  output += "###### Board ######<br><br>";
+  output += "MCU: " + String(CONFIG_IDF_TARGET) + "<br>";
+  output += "Chip Id: " + String(ESP.getChipModel()) + "<br>";
   output += "CPU frequency: " + String(ESP.getCpuFreqMHz()) + "MHz<br>";
   output += "Cores: " + String(ESP.getChipCores()) + "<br><hr>";
   output += "###### Flash chip information ######<br><br>";
@@ -431,10 +491,12 @@ void handleInfo(AsyncWebServerRequest *request)
   output += "Total Size: " + formatBytes(FILESYS.totalBytes()) + "<br>";
   output += "Used Space: " + formatBytes(FILESYS.usedBytes()) + "<br>";
   output += "Free Space: " + formatBytes(FILESYS.totalBytes() - FILESYS.usedBytes()) + "<br><hr>";
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
   output += "###### PSRam information ######<br><br>";
   output += "Psram Size: " + formatBytes(ESP.getPsramSize()) + "<br>";
   output += "Free psram: " + formatBytes(ESP.getFreePsram()) + "<br>";
   output += "Max alloc psram: " + formatBytes(ESP.getMaxAllocPsram()) + "<br><hr>";
+#endif
   output += "###### Ram information ######<br><br>";
   output += "Ram size: " + formatBytes(ESP.getHeapSize()) + "<br>";
   output += "Free ram: " + formatBytes(ESP.getFreeHeap()) + "<br>";
@@ -621,7 +683,11 @@ void setup(){
   server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send(200, "text/plain", "Microsoft Connect Test");
   });
-
+#if defined(CONFIG_IDF_TARGET_ESP32) 
+  server.on("/cache.manifest", HTTP_GET, [](AsyncWebServerRequest *request){
+   handleCacheManifest(request);
+  });
+#endif
   server.on("/config.ini", HTTP_ANY, [](AsyncWebServerRequest *request){
    request->send(404);
   });
@@ -673,10 +739,6 @@ void setup(){
    handleInfo(request);
   });
 
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
-   request->send(200, "text/css", styleData);
-  });
-
   server.on("/usbon", HTTP_POST, [](AsyncWebServerRequest *request){
    enableUSB();
    request->send(200, "text/plain", "ok");
@@ -721,6 +783,11 @@ void setup(){
         request->send(200, "text/css", styleData);
         return;
     }   
+    if (path.endsWith("menu.html"))
+    {
+        request->send(200, "text/html", menuData);
+        return;
+    }
     if (path.endsWith("payloads.html"))
     {
         #if INTHEN && AUTOHEN
@@ -744,17 +811,20 @@ void setup(){
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   server.begin();
   //HWSerial.println("HTTP server started");
-
 }
 
 
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 static int32_t onRead(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize){
   if (lba > 4){lba = 4;}
   memcpy(buffer, exfathax[lba] + offset, bufsize);
   return bufsize;
 }
+#endif
 
 
+
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 void enableUSB()
 {
   dev.vendorID("PS4");
@@ -768,7 +838,6 @@ void enableUSB()
   hasEnabled = true;
 }
 
-
 void disableUSB()
 {
   enTime = 0;
@@ -776,6 +845,21 @@ void disableUSB()
   dev.end();
   ESP.restart();
 }
+#else
+void enableUSB()
+{
+   digitalWrite(usbPin, HIGH);
+   enTime = millis();
+   hasEnabled = true;
+}
+
+void disableUSB()
+{
+   enTime = 0;
+   hasEnabled = false;
+   digitalWrite(usbPin, LOW);
+}
+#endif
 
 
 void loop(){

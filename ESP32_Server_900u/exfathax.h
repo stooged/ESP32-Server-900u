@@ -1,3 +1,4 @@
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 uint8_t exfathax[5][512] = {
 {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -59,3 +60,4 @@ uint8_t exfathax[5][512] = {
 },{
 0, 64
 }};
+#endif

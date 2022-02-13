@@ -2,15 +2,17 @@
 
 <br>
 
-This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2 boards</a> to provide a wifi http server, dns server and USB storage emulation.
+This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a> and <a href=https://www.espressif.com/en/products/socs/esp32>ESP32</a> boards to provide a wifi http server, dns server and *USB storage emulation.
 
-it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit</a> and the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32 S2</a> boards, it <b>will not work on the original <a href=https://www.espressif.com/en/products/modules/esp32>ESP32</a> boards</b> as they do not support the usb functions required by this project.
+it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit</a>.
 
-you do not need a usb drive with this project as it emulates a usb mass storage device to the console and triggers a filesystem bug to leverage the exploit(exfathax).
+if your board is a <a href=https://www.espressif.com/en/products/socs/esp32>ESP32</a> the usb emulation will not be available so you will need to wire a usb drive up to it like this project <a href=https://github.com/stooged/PS4-Server-900u>PS4-Server-900u</a> or you can manually plug and unplug a usb drive for exfathax.
+
+if your board is a <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a> you do not need a usb drive with this project as it emulates a usb mass storage device to the console and triggers a filesystem bug to leverage the exploit(exfathax).
 
 <br>
 
-<hr>these boards can be used for a plug and play setup(no wiring)<br>
+<hr>these <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a> boards can be used for a plug and play setup(no wiring)<br>
 <br>
 4MB boards<br>
 
@@ -26,7 +28,7 @@ you do not need a usb drive with this project as it emulates a usb mass storage 
 
 <br>
 
-<hr>these boards will need a usb A plug wired up to them.<br>
+<hr>these <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a> boards will need a usb A plug wired up to them.<br>
 <br>
 4MB boards<br>
 
@@ -89,8 +91,8 @@ installation is simple you just use the arduino ide to flash the sketch/firmware
 <br>
 <br>
 next you connect to the wifi access point with a pc/laptop, <b>PS4_WEB_AP</b> is the default SSID and <b>password</b> is the default password.<br>
-then use a webbrowser and goto http://10.1.1.1/admin.html <b>10.1.1.1</b> is the defult webserver ip.<br>
-on the side menu of the admin page select <b>File Uploader</b> and then click <b>Select Files</b> and locate the <b>data</b> folder inside the <b>ESP32_Server_900</b> folder in this repo and select all the files inside the <b>data</b> folder and click <b>Upload Files</b>
+then use a webbrowser and goto http://10.1.1.1/admin.html <b>10.1.1.1</b> is the defult webserver ip or http://ps4.local<br>
+on the side menu of the admin page select <b>File Uploader</b> and then click <b>Select Files</b> and locate the <b>data</b> folder inside the <b>ESP32_Server_900u</b> folder in this repo and select all the files inside the <b>data</b> folder and click <b>Upload Files</b>
 you can then goto <b>Config Editor</b> and change the password for the wifi ap.
 
 
