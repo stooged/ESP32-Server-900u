@@ -6,8 +6,14 @@ This is a project designed for the <a href=https://www.espressif.com/en/products
 
 it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit</a>.
 
+
+## ESP32 Boards
+
 if your board is a <a href=https://www.espressif.com/en/products/socs/esp32>ESP32</a> <b>the usb emulation will not be available</b> so you will need to wire a usb drive up to it like this project <a href=https://github.com/stooged/PS4-Server-900u>PS4-Server-900u</a> or you can manually plug and unplug a usb drive for exfathax.<br>
 this is a <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32_diag.jpg>wiring diagram</a> for the ESP32 boards.
+
+
+## ESP32-S2 Boards
 
 if your board is a <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a> you do not need a usb drive with this project as it emulates a usb mass storage device to the console and triggers a filesystem bug to leverage the exploit(exfathax).
 
