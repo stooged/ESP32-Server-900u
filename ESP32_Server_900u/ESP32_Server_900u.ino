@@ -468,12 +468,16 @@ void handleInfo(AsyncWebServerRequest *request)
 {
   float flashFreq = (float)ESP.getFlashChipSpeed() / 1000.0 / 1000.0;
   FlashMode_t ideMode = ESP.getFlashChipMode();
+  String mcuType = CONFIG_IDF_TARGET; mcuType.toUpperCase();
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>System Information</title><link rel=\"stylesheet\" href=\"style.css\"></head>";
   output += "<hr>###### Software ######<br><br>";
   output += "Firmware version " + firmwareVer + "<br>";
   output += "SDK version: " + String(ESP.getSdkVersion()) + "<br><hr>";
   output += "###### Board ######<br><br>";
-  output += "MCU: " + String(CONFIG_IDF_TARGET) + "<br>";
+  output += "MCU: " + mcuType + "<br>";
+#if defined(USB_PRODUCT) 
+  output += "Board: " + String(USB_PRODUCT) + "<br>";
+#endif
   output += "Chip Id: " + String(ESP.getChipModel()) + "<br>";
   output += "CPU frequency: " + String(ESP.getCpuFreqMHz()) + "MHz<br>";
   output += "Cores: " + String(ESP.getChipCores()) + "<br><hr>";
@@ -528,6 +532,11 @@ void setup(){
   //HWSerial.println("Version: " + firmwareVer);
   //USBSerial.begin();
   
+#if USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)
+  pinMode(usbPin, OUTPUT); 
+  digitalWrite(usbPin, LOW);
+#endif
+
   if (FILESYS.begin(true)) {
   if (FILESYS.exists("/config.ini")) {
   File iniFile = FILESYS.open("/config.ini", "r");
@@ -823,7 +832,6 @@ static int32_t onRead(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufs
   return bufsize;
 }
 #endif
-
 
 
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
