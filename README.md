@@ -9,7 +9,7 @@ it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit<
 
 ## ESP32 Boards
 
-if your board is a <a href=https://www.espressif.com/en/products/socs/esp32>ESP32</a> <b>the usb emulation will not be available</b> so you will need to wire a usb drive up to it like this project <a href=https://github.com/stooged/PS4-Server-900u>PS4-Server-900u</a> or you can manually plug and unplug a usb drive for exfathax.<br>
+if your board is a <a href=https://www.espressif.com/en/products/socs/esp32>ESP32</a> `the usb emulation will not be available` so you will need to wire a usb drive up to it like this project <a href=https://github.com/stooged/PS4-Server-900u>PS4-Server-900u</a> or you can manually plug and unplug a usb drive for exfathax.<br>
 this is a <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32_diag.jpg>wiring diagram</a> for the ESP32 boards.
 
 
@@ -23,15 +23,15 @@ if your board is a <a href=https://www.espressif.com/en/products/socs/esp32-s2>E
 <br>
 4MB boards<br>
 
-🆗 <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
-🆗 <a href=https://unexpectedmaker.com/tinys2>TinyS2</a><br>
-🆗 <a href="https://www.adafruit.com/product/5325">Adafruit QT Py ESP32-S2</a><br>
-🆗 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-s2-devkitc-1.html>ESP32-S2-DevKitC-1</a><br>
-❔ <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3">ESP32-S2 ESP32-S2-WOOR</a><br>
-❔ <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">ESP32-S2 ESP32-S2 TF Card Slot</a><br>
+:ok: <a href=https://www.wemos.cc/en/latest/s2/s2_mini.html>S2 Mini</a><br>
+:ok: <a href=https://unexpectedmaker.com/tinys2>TinyS2</a><br>
+:ok: <a href="https://www.adafruit.com/product/5325">Adafruit QT Py ESP32-S2</a><br>
+:ok: <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-s2-devkitc-1.html>ESP32-S2-DevKitC-1</a><br>
+:grey_question: <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3">ESP32-S2 ESP32-S2-WOOR</a><br>
+:grey_question: <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">ESP32-S2 ESP32-S2 TF Card Slot</a><br>
 
 16MB boards<br>
-🆗 <a href=https://feathers2.io/>FeatherS2</a><br>
+:ok: <a href=https://feathers2.io/>FeatherS2</a><br>
 
 <br>
 
@@ -39,9 +39,8 @@ if your board is a <a href=https://www.espressif.com/en/products/socs/esp32-s2>E
 <br>
 4MB boards<br>
 
-🆗 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32-S2-DevKitM-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-devkitm-1.jpg>Diagram</a><br>
-🆗 <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-saola-1-v1.2.html>ESP32-S2-Saola-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-saola-1.jpg>Diagram</a><br>
-❔ <a href=https://docs.ai-thinker.com/en/12k_development_board_esp32-s2>Ai-thinker ESP 12K</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/ai-thinker-esp12k.jpg>Diagram</a><br>
+:ok: <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html>ESP32-S2-DevKitM-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-devkitm-1.jpg>Diagram</a><br>
+:ok: <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-saola-1-v1.2.html>ESP32-S2-Saola-1</a> Wiring <a href=https://github.com/stooged/ESP32-Server-900u/blob/main/Images/esp32-s2-saola-1.jpg>Diagram</a><br>
 
 <br><hr>
 
