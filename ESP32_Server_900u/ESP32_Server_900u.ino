@@ -93,7 +93,7 @@ DNSServer dnsServer;
 AsyncWebServer server(WEB_PORT);
 boolean hasEnabled = false;
 long enTime = 0;
-int ftemp = 60;
+int ftemp = 70;
 File upFile;
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 USBMSC dev;
