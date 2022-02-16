@@ -31,6 +31,12 @@
 #define AUTOHEN false // this will load goldhen instead of the normal index/payload selection page, use this if you only want hen and no other payloads.
                       // INTHEN must be set to true for this to work.
 
+                    // enable fan threshold [ true / false ]
+#define FANMOD true // this will include a function to set the consoles fan ramp up temperature in °C
+                    // this will not work if the board is a esp32 and the usb control is disabled.
+
+
+
 
 #if USEFAT
 #include "FFat.h"
@@ -42,6 +48,10 @@
 
 #if INTHEN
 #include "goldhen.h"
+#endif
+
+#if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
+#include "fan.h"
 #endif
 
 /*
@@ -83,6 +93,7 @@ DNSServer dnsServer;
 AsyncWebServer server(WEB_PORT);
 boolean hasEnabled = false;
 long enTime = 0;
+int ftemp = 60;
 File upFile;
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 USBMSC dev;
@@ -311,6 +322,12 @@ void handlePayloads(AsyncWebServerRequest *request) {
     file.close();
     file = dir.openNextFile();
   }
+
+#if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
+  payloadCount++;
+  output +=  "<br><p><a onclick='setfantemp()'><button class='btn'>Set Fan Threshold</button></a><select id='temp'></select></p><script>function setfantemp(){var e = document.getElementById('temp');var temp = e.value;var xhr = new XMLHttpRequest();xhr.open('POST', 'setftemp', true);xhr.onload = function(e) {if (this.status == 200) {sessionStorage.setItem('payload', 'fant.bin'); sessionStorage.setItem('title', 'Fan Temp ' + temp + ' &deg;C'); localStorage.setItem('temp', temp); sessionStorage.setItem('waittime', '10000');  window.open('loader.html', '_self');}};xhr.send('temp=' + temp);}var stmp = localStorage.getItem('temp');if (!stmp){stmp = 70;}for(var i=55; i<=85; i=i+5){var s = document.getElementById('temp');var o = document.createElement('option');s.options.add(o);o.text = i + String.fromCharCode(32,176,67);o.value = i;if (i == stmp){o.selected = true;}}</script>";
+#endif
+
   if (payloadCount == 0)
   {
       output += "<msg>No .bin payloads found<br>You need to upload the payloads to the ESP32 board.<br>in the arduino ide select <b>Tools</b> &gt; <b>ESP32 Sketch Data Upload</b><br>or<br>Using a pc/laptop connect to <b>" + AP_SSID + "</b> and navigate to <a href=\"/admin.html\"><u>http://" + WIFI_HOSTNAME + "/admin.html</u></a> and upload the .bin payloads using the <b>File Uploader</b></msg></center></body></html>";
@@ -757,7 +774,31 @@ void setup(){
    disableUSB();
    request->send(200, "text/plain", "ok");
   });
-  
+
+
+#if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
+  server.on("/setftemp", HTTP_POST, [](AsyncWebServerRequest *request){
+    if (request->hasParam("temp", true))
+    {
+      ftemp = request->getParam("temp", true)->value().toInt();
+      request->send(200, "text/plain", "ok");
+    }
+    else
+    {
+      request->send(404);
+    }
+  });
+
+  server.on("/fant.bin", HTTP_GET, [](AsyncWebServerRequest *request){
+   if (ftemp < 55 || ftemp > 85){ftemp = 70;}
+   fan[413] = ftemp;
+   fan[506] = ftemp;
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", fan, sizeof(fan));
+   request->send(response);
+  });
+#endif
+
+
 #if INTHEN
   server.on("/gldhen.bin", HTTP_GET, [](AsyncWebServerRequest *request){
    AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen_gz, sizeof(goldhen_gz));
