@@ -488,6 +488,22 @@ font-weight: bold;
 background-color: RoyalBlue;
 }
 
+.slct  {
+-webkit-appearance: none;
+background-color: DodgerBlue;
+border: none;
+color: white;
+padding: 9px 1px;
+font-size: 16px;
+cursor: pointer;
+font-weight: bold;
+}
+
+.slct:hover {
+border: none;
+background-color: RoyalBlue;
+}
+
 .main {
 margin-left: 150px;     
 padding: 10px 10px; 
