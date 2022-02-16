@@ -234,6 +234,8 @@ padding: 0.4em 0.4em 0.4em 0.6em;
 } 
 
 .btn {
+transition-duration: 0.4s;
+box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 background-color: DodgerBlue;
 border: none;
 color: white;
@@ -475,6 +477,8 @@ padding: 0.4em 0.4em 0.4em 0.6em;
 } 
 
 .btn {
+transition-duration: 0.4s;
+box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 background-color: DodgerBlue;
 border: none;
 color: white;
@@ -489,6 +493,9 @@ background-color: RoyalBlue;
 }
 
 .slct  {
+transition-duration: 0.4s;
+box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+text-align: center;
 -webkit-appearance: none;
 background-color: DodgerBlue;
 border: none;
@@ -500,7 +507,6 @@ font-weight: bold;
 }
 
 .slct:hover {
-border: none;
 background-color: RoyalBlue;
 }
 
