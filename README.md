@@ -6,6 +6,20 @@ This is a project designed for the <a href=https://www.espressif.com/en/products
 
 it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit</a>.
 
+<br>
+
+the only files required on the storage of the esp32 are the .bin payloads, everything else is handled internally including generating a list of payloads.<br>
+
+you can still modify the html by uploading your own index.html, if there is no index.html on the storage the internal pages will be used.<br>
+
+if you have problems compiling the sketch make sure the <a href=https://github.com/stooged/ESP32-Server-900u/edit/main/README.md#libraries>ESP32 library</a> is up to date.<br>
+
+the firmware is updatable via http and the payload files can be managed via http.<br>
+if you select a `No OTA` partition the firmware update via http will not be available.<br>
+
+you can access the main page from the userguide or the consoles webbrowser using any hostname.<br>
+
+
 <br> 
 
 ## ESP32 Boards
@@ -35,18 +49,6 @@ install or update the ESP32 core by adding this url to the <a href=https://docs.
 ` https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json `
 
 then goto the "<b>Boards Manager</b> and install or update the "<b>esp32</b>" core.
-
-<br>
-
-the only files required on the storage of the esp32 are the .bin payloads, everything else is handled internally including generating a list of payloads.
-
-you can still modify the html by uploading your own index.html, if there is no index.html on the storage the internal pages will be used.
-
-if you have problems compiling the sketch make sure the <a href=https://github.com/espressif/arduino-esp32>ESP32 library</a> is up to date.
-
-the firmware is updatable via http and the payload files can be managed via http.
-
-you can access the main page from the userguide or the consoles webbrowser using any hostname.
 
 <br>
 
