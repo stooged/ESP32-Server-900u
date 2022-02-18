@@ -791,8 +791,7 @@ void setup(){
 
   server.on("/fant.bin", HTTP_GET, [](AsyncWebServerRequest *request){
    if (ftemp < 55 || ftemp > 85){ftemp = 70;}
-   fan[413] = ftemp;
-   fan[506] = ftemp;
+   fan[250] = ftemp; fan[368] = ftemp;
    AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", fan, sizeof(fan));
    request->send(response);
   });
