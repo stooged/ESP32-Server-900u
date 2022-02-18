@@ -215,7 +215,7 @@ function setpayload(payload,title,waittime)
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body onload="setpayload('gldhen.bin','GoldHEN','12000');">
+<body onload="setpayload('goldhen.bin','GoldHEN','12000');">
 </body>
 </html>
 )==";

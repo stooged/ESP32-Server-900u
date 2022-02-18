@@ -29,7 +29,7 @@
 
                       // enable autohen [ true / false ]
 #define AUTOHEN false // this will load goldhen instead of the normal index/payload selection page, use this if you only want hen and no other payloads.
-                      // INTHEN must be set to true for this to work.
+                      // you can update goldhen by uploading the goldhen payload to the board storage with the filename "goldhen.bin".
 
                     // enable fan threshold [ true / false ]
 #define FANMOD true // this will include a function to set the consoles fan ramp up temperature in °C
@@ -297,7 +297,7 @@ void handlePayloads(AsyncWebServerRequest *request) {
 #if INTHEN
   payloadCount++;
   cntr++;
-  output +=  "<a onclick=\"setpayload('gldhen.bin','" + String(INTHEN_NAME) + "','" + String(USB_WAIT) + "')\"><button class=\"btn\">" + String(INTHEN_NAME) + "</button></a>&nbsp;";
+  output +=  "<a onclick=\"setpayload('goldhen.bin','" + String(INTHEN_NAME) + "','" + String(USB_WAIT) + "')\"><button class=\"btn\">" + String(INTHEN_NAME) + "</button></a>&nbsp;";
 #endif
 
   File file = dir.openNextFile();
@@ -472,7 +472,10 @@ void handleCacheManifest(AsyncWebServerRequest *request) {
     output += "style.css\r\n";
   }
 #if INTHEN
-  output += "gldhen.bin\r\n";
+  if(!instr(output,"goldhen.bin\r\n"))
+  {
+    output += "goldhen.bin\r\n";
+  }
 #endif
    request->send(200, "text/cache-manifest", output);
   #else
@@ -797,15 +800,6 @@ void setup(){
   });
 #endif
 
-
-#if INTHEN
-  server.on("/gldhen.bin", HTTP_GET, [](AsyncWebServerRequest *request){
-   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen_gz, sizeof(goldhen_gz));
-   response->addHeader("Content-Encoding", "gzip");
-   request->send(response);
-  });
-#endif
-
   server.serveStatic("/", FILESYS, "/").setDefaultFile("index.html");
 
   server.onNotFound([](AsyncWebServerRequest *request){
@@ -841,7 +835,7 @@ void setup(){
 #endif    
     if (path.endsWith("payloads.html"))
     {
-        #if INTHEN && AUTOHEN
+        #if AUTOHEN
           request->send(200, "text/html", autohenData);
         #else
           handlePayloads(request);
@@ -855,6 +849,17 @@ void setup(){
         request->send(response);
         return;
     }
+
+#if INTHEN
+    if (path.endsWith("goldhen.bin"))
+    {
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", goldhen_gz, sizeof(goldhen_gz));
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
+        return;
+    }
+#endif
+
     request->send(404);
   });
 
