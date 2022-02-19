@@ -198,6 +198,7 @@ function statusRbt() { var answer = confirm("Are you sure you want to reboot?");
 )==";
 
 
+#if AUTOHEN
 static const char autohenData[] PROGMEM = R"==(
 <!DOCTYPE html>
 <html>
@@ -219,6 +220,8 @@ function setpayload(payload,title,waittime)
 </body>
 </html>
 )==";
+#endif
+
 
 
 #if !USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)

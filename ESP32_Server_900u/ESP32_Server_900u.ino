@@ -16,8 +16,6 @@
 #error "Selected board not supported"
 #endif
 
-#include "Loader.h"
-#include "Pages.h"
 
                      // use FatFS not SPIFFS [ true / false ]
 #define USEFAT false // FatFS will be used instead of SPIFFS for the storage filesystem or for larger partitons on boards with more than 4mb flash.
@@ -36,6 +34,8 @@
                     // this will not work if the board is a esp32 and the usb control is disabled.
 
 
+#include "Loader.h"
+#include "Pages.h"
 
 
 #if USEFAT
