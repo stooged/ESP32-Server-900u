@@ -155,7 +155,7 @@ these cases can be printed in PLA without supports.
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/DevKitM_1>DevKitM-1</a><br>
 
 
-## ESP32-S3 Boards
+### ESP32-S3 Boards
 
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/S3_DevKitC_1>S3_DevKitC_1</a><br>
 
