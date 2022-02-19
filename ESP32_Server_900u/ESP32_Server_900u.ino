@@ -359,6 +359,7 @@ void handleConfig(AsyncWebServerRequest *request)
     String tmpcw = "false";
     if (request->hasParam("useap", true)){tmpua = "true";}
     if (request->hasParam("usewifi", true)){tmpcw = "true";}
+    if (tmpua.equals("false") && tmpcw.equals("false")){tmpua = "true";}
     int USB_WAIT = request->getParam("usbwait", true)->value().toInt();
     File iniFile = FILESYS.open("/config.ini", "w");
     if (iniFile) {
