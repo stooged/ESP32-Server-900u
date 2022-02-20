@@ -762,6 +762,7 @@ void setup(){
    handleDelete(request);
   });
 
+#if USECONFIG
   server.on("/config.html", HTTP_GET, [](AsyncWebServerRequest *request){
    handleConfigHtml(request);
   });
@@ -769,7 +770,8 @@ void setup(){
   server.on("/config.html", HTTP_POST, [](AsyncWebServerRequest *request){
    handleConfig(request);
   });
-  
+#endif  
+
   server.on("/admin.html", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send(200, "text/html", adminData);
   });
