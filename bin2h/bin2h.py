@@ -18,12 +18,18 @@ with open("goldhen.bin.gz", 'rb') as f:
     while chnk:
         if cnt == 31:
             cnt = 0
-            tmpdat = tmpdat + "%s, \n" % ord(chnk)
+            tmpdat = tmpdat + "%s,\n" % ord(chnk)
         else:    
             tmpdat = tmpdat + "%s, " % ord(chnk)
         cnt=cnt+1
         chnk = f.read(1)
-tmpdat = tmpdat[:-1] + "\n};\n#endif"
+if tmpdat.endswith(","):
+  tmpdat = tmpdat[:-1]
+elif tmpdat.endswith(", "):
+  tmpdat = tmpdat[:-2]
+elif tmpdat.endswith(",\n"):
+  tmpdat = tmpdat[:-2]
+tmpdat = tmpdat + "\n};\n#endif"
 f.close()
 if os.path.exists("goldhen.h"):
   os.remove("goldhen.h")

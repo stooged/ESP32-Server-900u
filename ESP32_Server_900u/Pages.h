@@ -167,6 +167,7 @@ static const char adminData[] PROGMEM = R"==(
 <a href="/upload.html" target="mframe">File Uploader</a>
 <a href="/update.html" target="mframe">Firmware Update</a>
 <a href="/config.html" target="mframe">Config Editor</a>
+<a href="/format.html" target="mframe">Storage Format</a>
 <a href="/reboot.html" target="mframe">Reboot ESP</a>
 </div>
 <div class="main">
@@ -196,6 +197,32 @@ function statusRbt() { var answer = confirm("Are you sure you want to reboot?");
 <input id="reboot" type="submit" value="Reboot ESP" onClick="return statusRbt();" style="display: block;"></div>
 </form><center>
 </body></html>
+)==";
+
+
+static const char formatData[] PROGMEM = R"==(
+<!DOCTYPE html><html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storage Format</title>
+<link rel="stylesheet" href="style.css">
+<script>function statusFmt() { 
+var answer = confirm("Are you sure you want to format?"); 
+if (answer) {
+document.getElementById("format").style.display="none"; 
+document.getElementById("status").innerHTML = "<div id='loader'></div><br>Formatting Storage"; 
+setTimeout(function(){ window.location.href='/fileman.html'; }, 8000);
+return true;
+} else {
+return false;
+}}</script>
+</head>
+<body><center>
+<form action="/format.html" method="post">
+<p>Storage Format<br><br>
+</p><p id="msgfmt">This will delete all the files on the server</p><div><p id="status"></p>
+<input id="format" type="submit" value="Format Storage" onClick="return statusFmt();" style="display: block;"></div></form>
+<center></body></html>
 )==";
 
 
@@ -467,6 +494,11 @@ animation: spin 2s linear infinite;
 font-size: 16px;
 font-weight: normal;
 }
+
+#msgfmt {
+font-size: 16px;  
+font-weight: normal;
+}
 )==";
 #else
 static const char styleData[] PROGMEM = R"==(
@@ -648,6 +680,11 @@ animation: spin 2s linear infinite;
 
 #status {
 font-size: 16px;
+font-weight: normal;
+}
+
+#msgfmt {
+font-size: 16px;  
 font-weight: normal;
 }
 )==";

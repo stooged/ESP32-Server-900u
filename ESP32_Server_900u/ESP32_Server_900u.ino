@@ -92,6 +92,7 @@ String firmwareVer = "1.00";
 DNSServer dnsServer;
 AsyncWebServer server(WEB_PORT);
 boolean hasEnabled = false;
+boolean isFormating = false;
 long enTime = 0;
 int ftemp = 70;
 File upFile;
@@ -778,6 +779,14 @@ void setup(){
    request->send(200, "text/plain", "ok");
   });
 
+  server.on("/format.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/html", formatData);
+  });
+
+  server.on("/format.html", HTTP_POST, [](AsyncWebServerRequest *request){
+    isFormating = true;
+    request->send(304);
+  });
 
 #if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
   server.on("/setftemp", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -921,6 +930,16 @@ void loop(){
    if (hasEnabled && millis() >= (enTime + 15000))
    {
     disableUSB();
+   } 
+   if (isFormating)
+   {
+    //HWSerial.print("Formatting Storage");
+    isFormating = false;
+    FILESYS.end();
+    FILESYS.format();
+    FILESYS.begin(true);
+    delay(1000);
+    writeConfig();
    } 
    dnsServer.processNextRequest();
 }
