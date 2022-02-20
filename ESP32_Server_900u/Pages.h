@@ -134,6 +134,7 @@ static const char uploadData[] PROGMEM = R"==(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>File Upload</title>
 <link rel="stylesheet" href="style.css">
+<style>body{overflow-y:auto;}</style>
 <script>
 function formatBytes(bytes) {  if(bytes == 0) return '0 Bytes';  var k = 1024,  dm = 2,  sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],  i = Math.floor(Math.log(bytes) / Math.log(k));  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];}
 function statusUpl() {  document.getElementById("upload").style.display="none";  document.getElementById("btnsel").style.display="none";  document.getElementById("status").innerHTML = "<div id='loader'></div><br>Uploading files";}

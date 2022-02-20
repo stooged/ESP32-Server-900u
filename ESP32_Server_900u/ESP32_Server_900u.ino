@@ -259,29 +259,28 @@ void handleDelete(AsyncWebServerRequest *request){
 
 void handleFileMan(AsyncWebServerRequest *request) {
   File dir = FILESYS.open("/");
-  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;}</style><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }}</script></head><body><br><table>"; 
+  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;}</style><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }} </script></head><body><br><table id=filetable></table><script>var filelist = ["; 
   int fileCount = 0;
   File file = dir.openNextFile();
   while(file){
     String fname = String(file.name());
     if (fname.length() > 0 && !fname.equals("config.ini"))
     {
-    fileCount++;
-    output += "<tr>";
-    output += "<td><a href=\"" +  fname + "\">" + fname + "</a></td>";
-    output += "<td>" + formatBytes(file.size()) + "</td>";
-    output += "<td><a href=\"/" + fname + "\" download><button type=\"submit\">Download</button></a></td>";
-    output += "<td><form action=\"/delete\" method=\"post\"><button type=\"submit\" name=\"file\" value=\"" + fname + "\" onClick=\"return statusDel('" + fname + "');\">Delete</button></form></td>";
-    output += "</tr>";
+      fileCount++;
+      fname.replace("|","%7C");fname.replace("\"","%22");
+      output += "\"" + fname + "|" + formatBytes(file.size()) + "\",";
     }
     file.close();
     file = dir.openNextFile();
   }
   if (fileCount == 0)
   {
-      output += "<p><center>No files found<br>You can upload files using the <a href=\"/upload.html\" target=\"mframe\"><u>File Uploader</u></a> page.</center></p>";
+      output += "];</script><center>No files found<br>You can upload files using the <a href=\"/upload.html\" target=\"mframe\"><u>File Uploader</u></a> page.</center></p></body></html>";
   }
-  output += "</table></body></html>";
+  else
+  {
+      output += "];var output = \"\";filelist.forEach(function(entry) {var splF = entry.split(\"|\"); output += \"<tr>\";output += \"<td><a href=\\\"\" +  splF[0] + \"\\\">\" + splF[0] + \"</a></td>\"; output += \"<td>\" + splF[1] + \"</td>\";output += \"<td><a href=\\\"/\" + splF[0] + \"\\\" download><button type=\\\"submit\\\">Download</button></a></td>\";output += \"<td><form action=\\\"/delete\\\" method=\\\"post\\\"><button type=\\\"submit\\\" name=\\\"file\\\" value=\\\"\" + splF[0] + \"\\\" onClick=\\\"return statusDel('\" + splF[0] + \"');\\\">Delete</button></form></td>\";output += \"</tr>\";}); document.getElementById(\"filetable\").innerHTML = output;</script></body></html>";
+  }
   request->send(200, "text/html", output);
 }
 
