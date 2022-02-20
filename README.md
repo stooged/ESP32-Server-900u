@@ -134,6 +134,8 @@ the files uploaded using this method are found in the <b>data</b> folder inside 
 
 * <b>config.html</b> - used to configure wifi ap and ip settings.
 
+* <b>format.html</b> - used to format the internal storage of the esp board.
+
 * <b>reboot.html</b> - used to reboot the esp board
 
 

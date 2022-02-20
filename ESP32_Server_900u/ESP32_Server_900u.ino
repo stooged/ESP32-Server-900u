@@ -34,39 +34,11 @@
                     // this will not work if the board is a esp32 and the usb control is disabled.
 
 
-#include "Loader.h"
-#include "Pages.h"
-
-
-#if USEFAT
-#include "FFat.h"
-#define FILESYS FFat 
-#else
-#include "SPIFFS.h"
-#define FILESYS SPIFFS 
-#endif
-
-#if INTHEN
-#include "goldhen.h"
-#endif
-
-#if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
-#include "fan.h"
-#endif
-
-/*
-#if ARDUINO_USB_CDC_ON_BOOT
-#define HWSerial Serial0
-#define USBSerial Serial
-#else
-#define HWSerial Serial
-#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
-USBCDC USBSerial;
-#endif
-#endif
-*/
-
 //-------------------DEFAULT SETTINGS------------------//
+
+                       // use config.ini [ true / false ]
+#define USECONFIG true // this will allow you to change these settings below via the admin webpage.
+                       // if you want to permanently use the values below then set this to false.
 
 //create access point
 boolean startAP = true;
@@ -86,9 +58,32 @@ int WEB_PORT = 80;
 
 //Auto Usb Wait(milliseconds)
 int USB_WAIT = 10000;
+
+// Displayed firmware version
+String firmwareVer = "1.00";
+
 //-----------------------------------------------------//
 
-String firmwareVer = "1.00";
+
+#include "Loader.h"
+#include "Pages.h"
+
+#if USEFAT
+#include "FFat.h"
+#define FILESYS FFat 
+#else
+#include "SPIFFS.h"
+#define FILESYS SPIFFS 
+#endif
+
+#if INTHEN
+#include "goldhen.h"
+#endif
+
+#if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
+#include "fan.h"
+#endif
+
 DNSServer dnsServer;
 AsyncWebServer server(WEB_PORT);
 boolean hasEnabled = false;
@@ -99,6 +94,20 @@ File upFile;
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 USBMSC dev;
 #endif
+
+
+/*
+#if ARDUINO_USB_CDC_ON_BOOT
+#define HWSerial Serial0
+#define USBSerial Serial
+#else
+#define HWSerial Serial
+#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
+USBCDC USBSerial;
+#endif
+#endif
+*/
+
 
 String split(String str, String from, String to)
 {
@@ -337,6 +346,7 @@ void handlePayloads(AsyncWebServerRequest *request) {
 }
 
 
+#if USECONFIG
 void handleConfig(AsyncWebServerRequest *request)
 {
   if(request->hasParam("ap_ssid", true) && request->hasParam("ap_pass", true) && request->hasParam("web_ip", true) && request->hasParam("web_port", true) && request->hasParam("subnet", true) && request->hasParam("wifi_ssid", true) && request->hasParam("wifi_pass", true) && request->hasParam("wifi_host", true) && request->hasParam("usbwait", true)) 
@@ -376,6 +386,7 @@ void handleConfig(AsyncWebServerRequest *request)
    request->redirect("/config.html");
   }
 }
+#endif
 
 
 void handleReboot(AsyncWebServerRequest *request)
@@ -387,6 +398,7 @@ void handleReboot(AsyncWebServerRequest *request)
 }
 
 
+#if USECONFIG
 void handleConfigHtml(AsyncWebServerRequest *request)
 {
   String tmpUa = "";
@@ -396,6 +408,7 @@ void handleConfigHtml(AsyncWebServerRequest *request)
   String htmStr = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Config Editor</title><style type=\"text/css\">body {background-color: #1451AE; color: #ffffff; font-size: 14px;font-weight: bold;margin: 0 0 0 0.0;padding: 0.4em 0.4em 0.4em 0.6em;}input[type=\"submit\"]:hover {background: #ffffff;color: green;}input[type=\"submit\"]:active{outline-color: green;color: green;background: #ffffff; }table {font-family: arial, sans-serif;border-collapse: collapse;}td {border: 1px solid #dddddd;text-align: left;padding: 8px;}th {border: 1px solid #dddddd; background-color:gray;text-align: center;padding: 8px;}</style></head><body><form action=\"/config.html\" method=\"post\"><center><table><tr><th colspan=\"2\"><center>Access Point</center></th></tr><tr><td>AP SSID:</td><td><input name=\"ap_ssid\" value=\"" + AP_SSID + "\"></td></tr><tr><td>AP PASSWORD:</td><td><input name=\"ap_pass\" value=\"********\"></td></tr><tr><td>AP IP:</td><td><input name=\"web_ip\" value=\"" + Server_IP.toString() + "\"></td></tr><tr><td>SUBNET MASK:</td><td><input name=\"subnet\" value=\"" + Subnet_Mask.toString() + "\"></td></tr><tr><td>START AP:</td><td><input type=\"checkbox\" name=\"useap\" " + tmpUa +"></td></tr><tr><th colspan=\"2\"><center>Web Server</center></th></tr><tr><td>WEBSERVER PORT:</td><td><input name=\"web_port\" value=\"" + String(WEB_PORT) + "\"></td></tr><tr><th colspan=\"2\"><center>Wifi Connection</center></th></tr><tr><td>WIFI SSID:</td><td><input name=\"wifi_ssid\" value=\"" + WIFI_SSID + "\"></td></tr><tr><td>WIFI PASSWORD:</td><td><input name=\"wifi_pass\" value=\"********\"></td></tr><tr><td>WIFI HOSTNAME:</td><td><input name=\"wifi_host\" value=\"" + WIFI_HOSTNAME + "\"></td></tr><tr><td>CONNECT WIFI:</td><td><input type=\"checkbox\" name=\"usewifi\" " + tmpCw + "></tr><tr><th colspan=\"2\"><center>Auto USB Wait</center></th></tr><tr><td>WAIT TIME(ms):</td><td><input name=\"usbwait\" value=\"" + USB_WAIT + "\"></td></tr></table><br><input id=\"savecfg\" type=\"submit\" value=\"Save Config\"></center></form></body></html>";
   request->send(200, "text/html", htmStr);
 }
+#endif
 
 
 void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
@@ -517,10 +530,13 @@ void handleInfo(AsyncWebServerRequest *request)
   output += "Used Space: " + formatBytes(FILESYS.usedBytes()) + "<br>";
   output += "Free Space: " + formatBytes(FILESYS.totalBytes() - FILESYS.usedBytes()) + "<br><hr>";
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
-  output += "###### PSRam information ######<br><br>";
-  output += "Psram Size: " + formatBytes(ESP.getPsramSize()) + "<br>";
-  output += "Free psram: " + formatBytes(ESP.getFreePsram()) + "<br>";
-  output += "Max alloc psram: " + formatBytes(ESP.getMaxAllocPsram()) + "<br><hr>";
+  if (ESP.getPsramSize() > 0)
+  {
+    output += "###### PSRam information ######<br><br>";
+    output += "Psram Size: " + formatBytes(ESP.getPsramSize()) + "<br>";
+    output += "Free psram: " + formatBytes(ESP.getFreePsram()) + "<br>";
+    output += "Max alloc psram: " + formatBytes(ESP.getMaxAllocPsram()) + "<br><hr>";
+  }
 #endif
   output += "###### Ram information ######<br><br>";
   output += "Ram size: " + formatBytes(ESP.getHeapSize()) + "<br>";
@@ -535,6 +551,7 @@ void handleInfo(AsyncWebServerRequest *request)
 }
 
 
+#if USECONFIG
 void writeConfig()
 {
   File iniFile = FILESYS.open("/config.ini", "w");
@@ -547,6 +564,8 @@ void writeConfig()
   iniFile.close();
   }
 }
+#endif
+
 
 void setup(){
   //HWSerial.begin(115200);
@@ -559,6 +578,7 @@ void setup(){
 #endif
 
   if (FILESYS.begin(true)) {
+  #if USECONFIG  
   if (FILESYS.exists("/config.ini")) {
   File iniFile = FILESYS.open("/config.ini", "r");
   if (iniFile) {
@@ -652,6 +672,7 @@ void setup(){
   {
    writeConfig(); 
   }
+#endif
   }
   else
   {
@@ -718,9 +739,12 @@ void setup(){
    handleCacheManifest(request);
   });
 #endif
+
+#if USECONFIG
   server.on("/config.ini", HTTP_ANY, [](AsyncWebServerRequest *request){
    request->send(404);
   });
+#endif
 
   server.on("/upload.html", HTTP_GET, [](AsyncWebServerRequest *request){
    request->send(200, "text/html", uploadData);
@@ -885,10 +909,7 @@ static int32_t onRead(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufs
   memcpy(buffer, exfathax[lba] + offset, bufsize);
   return bufsize;
 }
-#endif
 
-
-#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 void enableUSB()
 {
   dev.vendorID("PS4");
@@ -939,7 +960,9 @@ void loop(){
     FILESYS.format();
     FILESYS.begin(true);
     delay(1000);
+#if USECONFIG
     writeConfig();
+#endif
    } 
    dnsServer.processNextRequest();
 }

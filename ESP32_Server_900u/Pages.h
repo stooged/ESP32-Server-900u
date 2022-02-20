@@ -153,6 +153,7 @@ function FileSelected(e){  var strdisp = "";  var file = document.getElementById
 )==";
 
 
+#if USECONFIG
 static const char adminData[] PROGMEM = R"==(
 <!DOCTYPE html>
 <html>
@@ -176,7 +177,30 @@ static const char adminData[] PROGMEM = R"==(
 </table>
 </body></html> 
 )==";
-
+#else
+static const char adminData[] PROGMEM = R"==(
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body><div class="sidenav"><a href="/index.html" target="mframe">Main Page</a>
+<a href="/info.html" target="mframe">ESP Information</a>
+<a href="/fileman.html" target="mframe">File Manager</a>
+<a href="/upload.html" target="mframe">File Uploader</a>
+<a href="/update.html" target="mframe">Firmware Update</a>
+<a href="/format.html" target="mframe">Storage Format</a>
+<a href="/reboot.html" target="mframe">Reboot ESP</a>
+</div>
+<div class="main">
+<iframe src="info.html" name="mframe" height="100%" width="100%" frameborder="0"></iframe>
+</div>
+</table>
+</body></html> 
+)==";
+#endif
 
 static const char rebootData[] PROGMEM = R"==(
 <!DOCTYPE html><html>
