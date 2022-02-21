@@ -67,6 +67,7 @@ String firmwareVer = "1.00";
 
 #include "Loader.h"
 #include "Pages.h"
+#include "jzip.h"
 
 #if USEFAT
 #include "FFat.h"
@@ -269,7 +270,7 @@ void handleDelete(AsyncWebServerRequest *request){
 
 void handleFileMan(AsyncWebServerRequest *request) {
   File dir = FILESYS.open("/");
-  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;}</style><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }} </script></head><body><br><table id=filetable></table><script>var filelist = ["; 
+  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;} th{border: 1px solid #dddddd; background-color:gray;padding: 8px;}</style><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }} </script></head><body><br><table id=filetable></table><script>var filelist = ["; 
   int fileCount = 0;
   File file = dir.openNextFile();
   while(file){
@@ -289,10 +290,39 @@ void handleFileMan(AsyncWebServerRequest *request) {
   }
   else
   {
-      output += "];var output = \"\";filelist.forEach(function(entry) {var splF = entry.split(\"|\"); output += \"<tr>\";output += \"<td><a href=\\\"\" +  splF[0] + \"\\\">\" + splF[0] + \"</a></td>\"; output += \"<td>\" + splF[1] + \"</td>\";output += \"<td><a href=\\\"/\" + splF[0] + \"\\\" download><button type=\\\"submit\\\">Download</button></a></td>\";output += \"<td><form action=\\\"/delete\\\" method=\\\"post\\\"><button type=\\\"submit\\\" name=\\\"file\\\" value=\\\"\" + splF[0] + \"\\\" onClick=\\\"return statusDel('\" + splF[0] + \"');\\\">Delete</button></form></td>\";output += \"</tr>\";}); document.getElementById(\"filetable\").innerHTML = output;</script></body></html>";
+      output += "];var output = \"\";filelist.forEach(function(entry) {var splF = entry.split(\"|\"); output += \"<tr>\";output += \"<td><a href=\\\"\" +  splF[0] + \"\\\">\" + splF[0] + \"</a></td>\"; output += \"<td>\" + splF[1] + \"</td>\";output += \"<td><a href=\\\"/\" + splF[0] + \"\\\" download><button type=\\\"submit\\\">Download</button></a></td>\";output += \"<td><form action=\\\"/delete\\\" method=\\\"post\\\"><button type=\\\"submit\\\" name=\\\"file\\\" value=\\\"\" + splF[0] + \"\\\" onClick=\\\"return statusDel('\" + splF[0] + \"');\\\">Delete</button></form></td>\";output += \"</tr>\";}); document.getElementById(\"filetable\").innerHTML = \"<tr><th colspan='1'><center>File Name</center></th><th colspan='1'><center>File Size</center></th><th colspan='1'><center><a href='/dlall' target='mframe'><button type='submit'>Download All</button></a></center></th><th colspan='1'><center><a href='/format.html' target='mframe'><button type='submit'>Delete All</button></a></center></th></tr>\" + output;</script></body></html>";
   }
   request->send(200, "text/html", output);
 }
+
+
+void handleDlFiles(AsyncWebServerRequest *request) {
+  File dir = FILESYS.open("/");
+  String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Downloader</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;}</style><script type=\"text/javascript\" src=\"jzip.js\"></script><script>var filelist = ["; 
+  int fileCount = 0;
+  File file = dir.openNextFile();
+  while(file){
+    String fname = String(file.name());
+    if (fname.length() > 0 && !fname.equals("config.ini"))
+    {
+      fileCount++;
+      fname.replace("\"","%22");
+      output += "\"" + fname + "\",";
+    }
+    file.close();
+    file = dir.openNextFile();
+  }
+  if (fileCount == 0)
+  {
+      output += "];</script></head><center>No files found to download<br>You can upload files using the <a href=\"/upload.html\" target=\"mframe\"><u>File Uploader</u></a> page.</center></p></body></html>";
+  }
+  else
+  {
+      output += "]; function sleep(miliseconds) {var currentTime = new Date().getTime();while (currentTime + miliseconds >= new Date().getTime()) {}}async function dlAll(){var zip = new JSZip();filelist.forEach(function(entry) {if (entry != ''){var xhr = new XMLHttpRequest();xhr.open('GET',entry,false);xhr.overrideMimeType('text/plain; charset=x-user-defined'); xhr.onload = function(e) {if (this.status == 200) {zip.file(entry, this.response,{binary: true});}};xhr.send();sleep(50);}});document.getElementById('gen').style.display = 'none';document.getElementById('comp').style.display = 'block';zip.generateAsync({type:'blob'}).then(function(content) {saveAs(content, 'esp_files.zip');});}</script></head><body onload='setTimeout(dlAll, 100);'><center><br><br><br><br><div id='gen' style='display:block;'><div id='loader'></div><br>Generating ZIP</div><div id='comp' style='display:none;'><br><br><br><br>Complete<br><br>Downloading: esp_files.zip</div></center></body></html>";
+  }
+  request->send(200, "text/html", output);
+}
+
 
 
 void handlePayloads(AsyncWebServerRequest *request) {
@@ -812,6 +842,16 @@ void setup(){
   server.on("/format.html", HTTP_POST, [](AsyncWebServerRequest *request){
     isFormating = true;
     request->send(304);
+  });
+
+  server.on("/dlall", HTTP_GET, [](AsyncWebServerRequest *request){
+    handleDlFiles(request);
+  });
+
+  server.on("/jzip.js", HTTP_GET, [](AsyncWebServerRequest *request){
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/javascript", jzip_gz, sizeof(jzip_gz));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   });
 
 #if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
