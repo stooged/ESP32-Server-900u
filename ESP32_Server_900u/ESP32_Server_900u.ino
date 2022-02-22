@@ -186,7 +186,7 @@ String getContentType(String filename){
   if(filename.endsWith(".htm")) return "text/html";
   else if(filename.endsWith(".html")) return "text/html";
   else if(filename.endsWith(".css")) return "text/css";
-  else if(filename.endsWith(".js")) return "application/javascript";
+  else if(filename.endsWith(".js")) return "text/javascript";
   else if(filename.endsWith(".png")) return "image/png";
   else if(filename.endsWith(".gif")) return "image/gif";
   else if(filename.endsWith(".jpg")) return "image/jpeg";
@@ -324,7 +324,6 @@ void handleDlFiles(AsyncWebServerRequest *request) {
 }
 
 
-
 void handlePayloads(AsyncWebServerRequest *request) {
   File dir = FILESYS.open("/");
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>ESP Server</title><link rel=\"stylesheet\" href=\"style.css\"><style>body { background-color: #1451AE; color: #ffffff; font-size: 14px; font-weight: bold; margin: 0 0 0 0.0; overflow-y:hidden; text-shadow: 3px 2px DodgerBlue;}</style><script>function setpayload(payload,title,waittime){ sessionStorage.setItem('payload', payload); sessionStorage.setItem('title', title); sessionStorage.setItem('waittime', waittime);  window.open('loader.html', '_self');}</script></head><body><center><h1>9.00 Payloads</h1>";
@@ -422,7 +421,9 @@ void handleConfig(AsyncWebServerRequest *request)
 void handleReboot(AsyncWebServerRequest *request)
 {
   //HWSerial.print("Rebooting ESP");
-  request->send(200, "text/html", rebootingData);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", rebooting_gz, sizeof(rebooting_gz));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   delay(1000);
   ESP.restart();
 }
@@ -777,7 +778,9 @@ void setup(){
 #endif
 
   server.on("/upload.html", HTTP_GET, [](AsyncWebServerRequest *request){
-   request->send(200, "text/html", uploadData);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", upload_gz, sizeof(upload_gz));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   });
 
   server.on("/upload.html", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -803,11 +806,15 @@ void setup(){
 #endif  
 
   server.on("/admin.html", HTTP_GET, [](AsyncWebServerRequest *request){
-   request->send(200, "text/html", adminData);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", admin_gz, sizeof(admin_gz));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   });
   
   server.on("/reboot.html", HTTP_GET, [](AsyncWebServerRequest *request){
-   request->send(200, "text/html", rebootData);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", reboot_gz, sizeof(reboot_gz));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   });
   
   server.on("/reboot.html", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -815,7 +822,11 @@ void setup(){
   });
 
   server.on("/update.html", HTTP_GET, [](AsyncWebServerRequest *request){
-   request->send(200, "text/html", updateData);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", update_gz, sizeof(update_gz));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+
+
   });
 
   server.on("/update.html", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -836,7 +847,9 @@ void setup(){
   });
 
   server.on("/format.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/html", formatData);
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", format_gz, sizeof(format_gz));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   });
 
   server.on("/format.html", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -893,12 +906,16 @@ void setup(){
     }
     if (path.endsWith("index.html") || path.endsWith("index.htm") || path.endsWith("/"))
     {
-        request->send(200, "text/html", indexData);
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_gz, sizeof(index_gz));
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
         return;
     }
     if (path.endsWith("style.css"))
     {
-        request->send(200, "text/css", styleData);
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/css", style_gz, sizeof(style_gz));
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
         return;
     }   
 #if !USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)    
