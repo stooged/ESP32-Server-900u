@@ -902,14 +902,18 @@ void setup(){
 #if !USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)    
     if (path.endsWith("menu.html"))
     {
-        request->send(200, "text/html", menuData);
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", menu_gz, sizeof(menu_gz));
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
         return;
     }
 #endif    
     if (path.endsWith("payloads.html"))
     {
         #if AUTOHEN
-          request->send(200, "text/html", autohenData);
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", autohen_gz, sizeof(autohen_gz));
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
         #else
           handlePayloads(request);
         #endif
