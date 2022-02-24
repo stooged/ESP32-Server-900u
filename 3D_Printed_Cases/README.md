@@ -25,3 +25,9 @@ i have created stl files to 3d print cases for the following boards.
 <br>
 
 these cases can be printed in PLA without supports.
+
+<br>
+
+if you wish to edit the cases you can import the `.stl` files into <a href=https://www.tinkercad.com/>Tinkercad<a/> and edit them to suit your needs.
+
+<br>

@@ -182,3 +182,72 @@ uint8_t fan[]{
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255};
 #endif
+
+
+
+
+
+/* source
+
+
+
+#include "ps4.h"
+
+#define X86_CR0_WP (1 << 16)
+
+int kpayload_jailbreak(struct thread *td) {
+  struct filedesc *fd;
+  struct ucred *cred;
+  fd = td->td_proc->p_fd;
+  cred = td->td_proc->p_ucred;
+  void *kernel_base;
+  uint8_t *kernel_ptr;
+  void **got_prison0;
+  void **got_rootvnode;
+  kernel_base = &((uint8_t *)__readmsr(0xC0000082))[-K900_XFAST_SYSCALL];
+  kernel_ptr = (uint8_t *)kernel_base;
+  got_prison0 = (void **)&kernel_ptr[K900_PRISON_0];
+  got_rootvnode = (void **)&kernel_ptr[K900_ROOTVNODE];
+  cred->cr_uid = 0;
+  cred->cr_ruid = 0;
+  cred->cr_rgid = 0;
+  cred->cr_groups[0] = 0;
+  cred->cr_prison = *got_prison0;
+  fd->fd_rdir = fd->fd_jdir = *got_rootvnode;
+  void *td_ucred = *(void **)(((char *)td) + 304);
+  uint64_t *sonyCred = (uint64_t *)(((char *)td_ucred) + 96);
+  *sonyCred = 0xffffffffffffffff;
+  uint64_t *sceProcessAuthorityId = (uint64_t *)(((char *)td_ucred) + 88);
+  *sceProcessAuthorityId = 0x3801000000000013;
+  uint64_t *sceProcCap = (uint64_t *)(((char *)td_ucred) + 104);
+  *sceProcCap = 0xffffffffffffffff;
+  return 0;
+}
+
+int jailbreak() {
+  kexec(&kpayload_jailbreak,0);
+  return 0;
+}
+
+int _main(struct thread *td) {
+  UNUSED(td);
+  initKernel();
+  initLibc();
+  initPthread();
+  jailbreak();
+  initSysUtil();
+  int THRESHOLDTEMP = 70;
+  int fd = open("/dev/icc_fan", O_RDONLY, 0);
+  if (fd <= 0) {
+    return 0;
+  }
+  char data[10] = {0x00, 0x00, 0x00, 0x00, 0x00, THRESHOLDTEMP, 0x00, 0x00, 0x00, 0x00};
+  ioctl(fd, 0xC01C8F07, data);
+  close(fd);
+  printf_notification("Fan Threshold Set to %i°C", THRESHOLDTEMP);
+  return 0;
+}
+
+
+
+*/
