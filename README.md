@@ -58,7 +58,10 @@ then goto the "<b>Boards Manager</b> and install or update the "<b>esp32</b>" co
 
 <br>
 
+if you have problems with the board being identified/found in windows then you might need to install the <a href=https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers>USB to UART Bridge</a> drivers.
 
+
+<br>
 
 ## Tested Boards
 
