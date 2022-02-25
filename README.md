@@ -158,6 +158,7 @@ these cases can be printed in PLA without supports.
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/UM_TinyS2>UM TinyS2</a><br>
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/Wemos_S2_Mini>Wemos S2 Mini</a><br>
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/DevKitM_1>DevKitM-1</a><br>
+<a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/ESP32_S2_Saola_1>ESP32-S2-Saola-1</a><br>
 
 
 ### ESP32-S3 Boards
