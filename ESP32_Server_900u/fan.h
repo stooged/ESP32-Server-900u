@@ -188,7 +188,7 @@ uint8_t fan[]{
 
 
 /* source
-
+https://github.com/Scene-Collective/ps4-fan-threshold/
 
 
 #include "ps4.h"
