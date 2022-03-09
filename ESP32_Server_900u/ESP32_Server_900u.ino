@@ -21,6 +21,10 @@
 #define USEFAT false // FatFS will be used instead of SPIFFS for the storage filesystem or for larger partitons on boards with more than 4mb flash.
                      // you must select a partition scheme labeled with "FAT" or "FATFS" with this enabled.
 
+                     // use LITTLEFS not SPIFFS [ true / false ]
+#define USELFS false // LITTLEFS will be used instead of SPIFFS for the storage filesystem.
+                     // you must select a partition scheme labeled with "SPIFFS" with this enabled and USEFAT must be false.
+
                     // enable internal goldhen.h [ true / false ]
 #define INTHEN true // goldhen is placed in the app partition to free up space on the storage for other payloads.
                     // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen.
@@ -73,8 +77,13 @@ String firmwareVer = "1.00";
 #include "FFat.h"
 #define FILESYS FFat 
 #else
+#if USELFS
+#include <LittleFS.h>
+#define FILESYS LittleFS 
+#else
 #include "SPIFFS.h"
 #define FILESYS SPIFFS 
+#endif
 #endif
 
 #if INTHEN
@@ -253,17 +262,21 @@ void handleFileMan(AsyncWebServerRequest *request) {
   File dir = FILESYS.open("/");
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Manager</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;} th{border: 1px solid #dddddd; background-color:gray;padding: 8px;}</style><script>function statusDel(fname) {var answer = confirm(\"Are you sure you want to delete \" + fname + \" ?\");if (answer) {return true;} else { return false; }} </script></head><body><br><table id=filetable></table><script>var filelist = ["; 
   int fileCount = 0;
-  File file = dir.openNextFile();
-  while(file){
+  while(dir){
+    File file = dir.openNextFile();
+    if (!file)
+    { 
+      dir.close();
+      break;
+    }
     String fname = String(file.name());
-    if (fname.length() > 0 && !fname.equals("config.ini"))
+    if (fname.length() > 0 && !fname.equals("config.ini") && !file.isDirectory())
     {
       fileCount++;
       fname.replace("|","%7C");fname.replace("\"","%22");
       output += "\"" + fname + "|" + formatBytes(file.size()) + "\",";
     }
     file.close();
-    file = dir.openNextFile();
   }
   if (fileCount == 0)
   {
@@ -281,17 +294,21 @@ void handleDlFiles(AsyncWebServerRequest *request) {
   File dir = FILESYS.open("/");
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>File Downloader</title><link rel=\"stylesheet\" href=\"style.css\"><style>body{overflow-y:auto;}</style><script type=\"text/javascript\" src=\"jzip.js\"></script><script>var filelist = ["; 
   int fileCount = 0;
-  File file = dir.openNextFile();
-  while(file){
+  while(dir){
+    File file = dir.openNextFile();
+    if (!file)
+    { 
+      dir.close();
+      break;
+    }
     String fname = String(file.name());
-    if (fname.length() > 0 && !fname.equals("config.ini"))
+    if (fname.length() > 0 && !fname.equals("config.ini") && !file.isDirectory())
     {
       fileCount++;
       fname.replace("\"","%22");
       output += "\"" + fname + "\",";
     }
     file.close();
-    file = dir.openNextFile();
   }
   if (fileCount == 0)
   {
@@ -319,13 +336,18 @@ void handlePayloads(AsyncWebServerRequest *request) {
   output +=  "<a onclick=\"setpayload('goldhen.bin','" + String(INTHEN_NAME) + "','" + String(USB_WAIT) + "')\"><button class=\"btn\">" + String(INTHEN_NAME) + "</button></a>&nbsp;";
 #endif
 
-  File file = dir.openNextFile();
-  while(file){
+  while(dir){
+    File file = dir.openNextFile();
+    if (!file)
+    { 
+      dir.close();
+      break;
+    }
     String fname = String(file.name());
     if (fname.endsWith(".gz")) {
         fname = fname.substring(0, fname.length() - 3);
     }
-    if (fname.length() > 0 && fname.endsWith(".bin"))
+    if (fname.length() > 0 && fname.endsWith(".bin") && !file.isDirectory())
     {
       payloadCount++;
       String fnamev = fname;
@@ -339,7 +361,6 @@ void handlePayloads(AsyncWebServerRequest *request) {
       }
     }
     file.close();
-    file = dir.openNextFile();
   }
 
 #if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
@@ -464,10 +485,15 @@ void handleCacheManifest(AsyncWebServerRequest *request) {
   #if !USBCONTROL
   String output = "CACHE MANIFEST\r\n";
   File dir = FILESYS.open("/");
-  File file = dir.openNextFile();
-  while(file){
+  while(dir){
+    File file = dir.openNextFile();
+    if (!file)
+    { 
+      dir.close();
+      break;
+    }
     String fname = String(file.name());
-    if (fname.length() > 0 && !fname.equals("config.ini"))
+    if (fname.length() > 0 && !fname.equals("config.ini") && !file.isDirectory())
     {
       if (fname.endsWith(".gz")) {
         fname = fname.substring(0, fname.length() - 3);
@@ -475,7 +501,6 @@ void handleCacheManifest(AsyncWebServerRequest *request) {
      output += urlencode(fname) + "\r\n";
     }
      file.close();
-     file = dir.openNextFile();
   }
   if(!instr(output,"index.html\r\n"))
   {
@@ -535,6 +560,8 @@ void handleInfo(AsyncWebServerRequest *request)
   output += "###### Storage information ######<br><br>";
 #if USEFAT
   output += "Filesystem: FatFs<br>";
+#elif USELFS
+  output += "Filesystem: LittleFS<br>";
 #else
   output += "Filesystem: SPIFFS<br>";
 #endif
