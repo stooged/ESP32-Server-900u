@@ -890,9 +890,12 @@ void setup(){
 
   server.on("/fant.bin", HTTP_GET, [](AsyncWebServerRequest *request){
    if (ftemp < 55 || ftemp > 85){ftemp = 70;}
-   fan[250] = ftemp; fan[368] = ftemp;
-   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", fan, sizeof(fan));
+   uint8_t *fant = (uint8_t *) malloc(sizeof(uint8_t)*sizeof(fan)); 
+   memcpy_P(fant, fan, sizeof(fan));
+   fant[250] = ftemp; fant[368] = ftemp;
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", fant , sizeof(fan));
    request->send(response);
+   free(fant);
   });
 #endif
 
