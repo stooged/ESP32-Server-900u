@@ -38,6 +38,15 @@
                     // this will not work if the board is a esp32 and the usb control is disabled.
 
 
+                       // enable esp sleep [ true / false ]
+#define ESPSLEEP false // this will put the esp board to sleep after [TIME2SLEEP] minutes
+                       // to wake the board up you will need to reboot the console or unplug/replug the esp board or press the reset button on the board.
+                       
+#if ESPSLEEP
+#define TIME2SLEEP 30 // minutes, the esp will goto sleep after this amount of time passes since boot.
+#endif
+
+
 //-------------------DEFAULT SETTINGS------------------//
 
                        // use config.ini [ true / false ]
@@ -100,6 +109,7 @@ boolean hasEnabled = false;
 boolean isFormating = false;
 long enTime = 0;
 int ftemp = 70;
+long bootTime = 0;
 File upFile;
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 USBMSC dev;
@@ -974,6 +984,8 @@ void setup(){
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   server.begin();
   //HWSerial.println("HTTP server started");
+
+  bootTime = millis();
 }
 
 
@@ -1022,6 +1034,14 @@ void disableUSB()
 
 
 void loop(){
+#if ESPSLEEP
+   if (millis() >= (bootTime + (TIME2SLEEP * 60000)))
+   {
+    //HWSerial.print("Esp sleep");
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
+    esp_deep_sleep_start();
+   }
+#endif
    if (hasEnabled && millis() >= (enTime + 15000))
    {
     disableUSB();
