@@ -1,6 +1,7 @@
 #include <FS.h>
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
+#include "esp_task_wdt.h"
 #include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
@@ -16,6 +17,10 @@
 #error "Selected board not supported"
 #endif
 
+
+                     // use SD Card [ true / false ]
+#define USESD false  // a FAT32 formatted SD Card will be used instead of the onboard flash for the storage.
+                     // this requires a board with a sd card slot or a sd card connected.
 
                      // use FatFS not SPIFFS [ true / false ]
 #define USEFAT false // FatFS will be used instead of SPIFFS for the storage filesystem or for larger partitons on boards with more than 4mb flash.
@@ -82,6 +87,15 @@ String firmwareVer = "1.00";
 #include "Pages.h"
 #include "jzip.h"
 
+#if USESD
+#include "SD.h"
+#include "SPI.h"
+#define SCK 12   // pins for sd card
+#define MISO 13  // these values are set for the LILYGO TTGO T8 ESP32-S2 board
+#define MOSI 11  // you may need to change these for other boards
+#define SS 10
+#define FILESYS SD 
+#else
 #if USEFAT
 #include "FFat.h"
 #define FILESYS FFat 
@@ -92,6 +106,7 @@ String firmwareVer = "1.00";
 #else
 #include "SPIFFS.h"
 #define FILESYS SPIFFS 
+#endif
 #endif
 #endif
 
@@ -287,6 +302,8 @@ void handleFileMan(AsyncWebServerRequest *request) {
       output += "\"" + fname + "|" + formatBytes(file.size()) + "\",";
     }
     file.close();
+    esp_task_wdt_reset();
+    
   }
   if (fileCount == 0)
   {
@@ -319,6 +336,7 @@ void handleDlFiles(AsyncWebServerRequest *request) {
       output += "\"" + fname + "\",";
     }
     file.close();
+    esp_task_wdt_reset();
   }
   if (fileCount == 0)
   {
@@ -371,6 +389,7 @@ void handlePayloads(AsyncWebServerRequest *request) {
       }
     }
     file.close();
+    esp_task_wdt_reset();
   }
 
 #if (!defined(USBCONTROL) | USBCONTROL) && FANMOD
@@ -568,7 +587,9 @@ void handleInfo(AsyncWebServerRequest *request)
   output += "Flash frequency: " + String(flashFreq) + " MHz<br>";
   output += "Flash write mode: " + String((ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN")) + "<br><hr>";
   output += "###### Storage information ######<br><br>";
-#if USEFAT
+#if USESD
+  output += "Storage Device: SD<br>";
+#elif USEFAT
   output += "Filesystem: FatFs<br>";
 #elif USELFS
   output += "Filesystem: LittleFS<br>";
@@ -626,7 +647,16 @@ void setup(){
   digitalWrite(usbPin, LOW);
 #endif
 
+
+
+
+#if USESD
+  SPI.begin(SCK, MISO, MOSI, SS);
+  if (FILESYS.begin(SS, SPI)) {
+#else
   if (FILESYS.begin(true)) {
+#endif
+
   #if USECONFIG  
   if (FILESYS.exists("/config.ini")) {
   File iniFile = FILESYS.open("/config.ini", "r");
@@ -1046,6 +1076,7 @@ void loop(){
    {
     disableUSB();
    } 
+#if !USESD   
    if (isFormating)
    {
     //HWSerial.print("Formatting Storage");
@@ -1058,5 +1089,6 @@ void loop(){
     writeConfig();
 #endif
    } 
+#endif
    dnsServer.processNextRequest();
 }
