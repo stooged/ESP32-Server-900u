@@ -73,8 +73,8 @@ these <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a> b
 :ok: <a href=https://unexpectedmaker.com/tinys2>TinyS2</a><br>
 :ok: <a href="https://www.adafruit.com/product/5325">Adafruit QT Py ESP32-S2</a><br>
 :ok: <a href=https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-s2-devkitc-1.html>ESP32-S2-DevKitC-1</a><br>
-:ok: <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3">ESP32-S2 ESP32-S2-WOOR</a><br>
-:ok: <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">ESP32-S2 ESP32-S2 TF Card Slot</a><br>
+:ok: <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1320&FId=t3:50063:3">LILYGO TTGO T8 ESP32-S2 WOOR</a><br>
+:ok: <a href="http://www.lilygo.cn/prod_view.aspx?TypeId=50063&Id=1300&FId=t3:50063:3">LILYGO TTGO T8 TF Card Slot</a><br>
 
 16MB boards<br>
 :ok: <a href=https://feathers2.io/>FeatherS2</a><br>
@@ -159,6 +159,9 @@ these cases can be printed in PLA without supports.
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/Wemos_S2_Mini>Wemos S2 Mini</a><br>
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/DevKitM_1>DevKitM-1</a><br>
 <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/ESP32_S2_Saola_1>ESP32-S2-Saola-1</a><br>
+<a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/LILYGO_TTGO_T8_TF_Card_Slot>LILYGO-TTGO-T8-TF-Card-Slot</a><br>
+<a href=https://github.com/stooged/ESP32-Server-900u/tree/main/3D_Printed_Cases/LILYGO_TTGO_T8_WOOR>LILYGO-TTGO-T8-WOOR</a><br>
+
 
 
 ### ESP32-S3 Boards
