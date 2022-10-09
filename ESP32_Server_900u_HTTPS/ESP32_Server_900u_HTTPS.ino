@@ -5,6 +5,12 @@
 #include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
+#include <HTTPSServer.hpp>
+#include <HTTPServer.hpp>
+#include <SSLCert.hpp>
+#include <HTTPRequest.hpp>
+#include <HTTPResponse.hpp>
+
 
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)  // ESP32-S2/S3 BOARDS(usb emulation)
 #include "USB.h"
@@ -118,6 +124,9 @@ int TIME2SLEEP = 30;  // minutes
 
 DNSServer dnsServer;
 AsyncWebServer server(WEB_PORT);
+using namespace httpsserver;
+SSLCert *cert;
+HTTPSServer *secureServer;
 boolean hasEnabled = false;
 boolean isFormating = false;
 long enTime = 0;
@@ -285,7 +294,7 @@ void handleFileMan(AsyncWebServerRequest *request) {
       break;
     }
     String fname = String(file.name());
-    if (fname.length() > 0 && !fname.equals("config.ini") && !file.isDirectory()) {
+    if (fname.length() > 0 && !fname.equals("config.ini") && !file.isDirectory() && !fname.equals("cert.der") && !fname.equals("pk.pem")) {
       fileCount++;
       fname.replace("|", "%7C");
       fname.replace("\"", "%22");
@@ -314,7 +323,7 @@ void handleDlFiles(AsyncWebServerRequest *request) {
       break;
     }
     String fname = String(file.name());
-    if (fname.length() > 0 && !fname.equals("config.ini") && !file.isDirectory()) {
+    if (fname.length() > 0 && !fname.equals("config.ini") && !file.isDirectory() && !fname.equals("cert.der") && !fname.equals("pk.pem")) {
       fileCount++;
       fname.replace("\"", "%22");
       output += "\"" + fname + "\",";
@@ -604,6 +613,27 @@ void writeConfig() {
   }
 }
 #endif
+
+
+
+void handleHTTPS(HTTPRequest *req, HTTPResponse *res)
+{
+  String path = req->getRequestString().c_str();
+  if (instr(path, "/update/") && instr(path, "/ps5/")) {
+    res->setStatusCode(200);
+    res->setStatusText("OK");
+    res->setHeader("Content-Type", "application/xml");
+    res->println("<?xml version=\"1.0\" ?><update_data_list><region id=\"us\"><force_update><system auto_update_version=\"00.00\" sdk_version=\"01.00.00.09-00.00.00.0.0\" upd_version=\"01.00.00.00\"/></force_update><system_pup auto_update_version=\"00.00\" label=\"20.02.02.20.00.07-00.00.00.0.0\" sdk_version=\"02.20.00.07-00.00.00.0.0\" upd_version=\"02.20.00.00\"><update_data update_type=\"full\"></update_data></system_pup></region></update_data_list>");
+  }
+  else{
+    std::string serverHost = WIFI_HOSTNAME.c_str();
+    res->setStatusCode(301);
+    res->setStatusText("Moved Permanently");
+    res->setHeader("Location", "http://" + serverHost + "/index.html");
+    res->println("Moved Permanently");
+  }
+}
+
 
 
 void setup() {
@@ -970,6 +1000,47 @@ void setup() {
   //HWSerial.println("HTTP server started");
 
   if (TIME2SLEEP < 5) { TIME2SLEEP = 5; }  //min sleep time
+
+
+  if (FILESYS.exists("/pk.pem") && FILESYS.exists("/cert.der"))
+  {
+    uint8_t* cBuffer;
+    uint8_t* kBuffer;
+    unsigned int clen = 0;
+    unsigned int klen = 0;
+    File certFile = FILESYS.open("/cert.der", "r");
+    clen = certFile.size();
+    cBuffer = (uint8_t*)malloc(clen);
+    certFile.read(cBuffer, clen);
+    certFile.close();
+    File pkFile = FILESYS.open("/pk.pem", "r");
+    klen = pkFile.size();
+    kBuffer = (uint8_t*)malloc(klen);
+    pkFile.read(kBuffer, klen);
+    pkFile.close();
+    cert = new SSLCert(cBuffer, clen, kBuffer, klen);
+  }else{
+    cert = new SSLCert();
+    String keyInf = "CN=" + WIFI_HOSTNAME + ",O=Esp32_Server,C=US";
+    int createCertResult = createSelfSignedCert(*cert, KEYSIZE_1024, (std::string)keyInf.c_str(), "20190101000000", "20300101000000");
+    if (createCertResult != 0) {
+      //Serial.printf("Certificate failed, Error Code = 0x%02X\n", createCertResult);
+    }else{
+      //Serial.println("Certificate created");
+      File pkFile = FILESYS.open("/pk.pem", "w");
+      pkFile.write( cert->getPKData(), cert->getPKLength());
+      pkFile.close();
+      File certFile = FILESYS.open("/cert.der", "w");
+      certFile.write(cert->getCertData(), cert->getCertLength());
+      certFile.close();
+    }
+  }
+
+  secureServer = new HTTPSServer(cert);
+  ResourceNode *nhttps = new ResourceNode("", "ANY", &handleHTTPS);
+  secureServer->setDefaultNode(nhttps);
+  secureServer->start();
+
   bootTime = millis();
 }
 
@@ -1039,5 +1110,7 @@ void loop() {
 #endif
   }
 #endif
+
   dnsServer.processNextRequest();
+  secureServer->loop();
 }
