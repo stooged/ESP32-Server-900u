@@ -667,13 +667,13 @@ void setup() {
         }
         iniFile.close();
 
-        if (instr(iniData, "SSID=")) {
-          AP_SSID = split(iniData, "SSID=", "\r\n");
+        if (instr(iniData, "AP_SSID=")) {
+          AP_SSID = split(iniData, "AP_SSID=", "\r\n");
           AP_SSID.trim();
         }
 
-        if (instr(iniData, "PASSWORD=")) {
-          AP_PASS = split(iniData, "PASSWORD=", "\r\n");
+        if (instr(iniData, "AP_PASS=")) {
+          AP_PASS = split(iniData, "AP_PASS=", "\r\n");
           AP_PASS.trim();
         }
 
