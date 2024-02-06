@@ -17,37 +17,39 @@
 #error "Selected board not supported"
 #endif
 
+                     // use PsFree [ true / false ]
+#define PSFREE true  // use the newer psfree webkit exploit.
+                     // this is fairly stable but may fail which will require you to try and load the payload again.
 
-// use SD Card [ true / false ]
+                     // use SD Card [ true / false ]
 #define USESD false  // a FAT32 formatted SD Card will be used instead of the onboard flash for the storage. \
                      // this requires a board with a sd card slot or a sd card connected.
 
-// use FatFS not SPIFFS [ true / false ]
+                      // use FatFS not SPIFFS [ true / false ]
 #define USEFAT false  // FatFS will be used instead of SPIFFS for the storage filesystem or for larger partitons on boards with more than 4mb flash. \
                       // you must select a partition scheme labeled with "FAT" or "FATFS" with this enabled.
 
-// use LITTLEFS not SPIFFS [ true / false ]
+                      // use LITTLEFS not SPIFFS [ true / false ]
 #define USELFS false  // LITTLEFS will be used instead of SPIFFS for the storage filesystem. \
                       // you must select a partition scheme labeled with "SPIFFS" with this enabled and USEFAT must be false.
 
-// enable internal goldhen.h [ true / false ]
+                     // enable internal goldhen.h [ true / false ]
 #define INTHEN true  // goldhen is placed in the app partition to free up space on the storage for other payloads. \
                      // with this enabled you do not upload goldhen to the board, set this to false if you wish to upload goldhen.
 
-// enable autohen [ true / false ]
+                       // enable autohen [ true / false ]
 #define AUTOHEN false  // this will load goldhen instead of the normal index/payload selection page, use this if you only want hen and no other payloads. \
                        // you can update goldhen by uploading the goldhen payload to the board storage with the filename "goldhen.bin".
 
-// enable fan threshold [ true / false ]
+                     // enable fan threshold [ true / false ]
 #define FANMOD true  // this will include a function to set the consoles fan ramp up temperature in °C \
                      // this will not work if the board is a esp32 and the usb control is disabled.
 
 
 
-
 //-------------------DEFAULT SETTINGS------------------//
 
-// use config.ini [ true / false ]
+                        // use config.ini [ true / false ]
 #define USECONFIG true  // this will allow you to change these settings below via the admin webpage. \
                         // if you want to permanently use the values below then set this to false.
 
@@ -930,6 +932,14 @@ void setup() {
 #if !USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)
     if (path.endsWith("menu.html")) {
       AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", menu_gz, sizeof(menu_gz));
+      response->addHeader("Content-Encoding", "gzip");
+      request->send(response);
+      return;
+    }
+#endif
+#if PSFREE
+    if (path.endsWith("exploit.js")) {
+      AsyncWebServerResponse *response = request->beginResponse_P(200, "text/javascript", psf_gz, sizeof(psf_gz));
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
       return;
