@@ -11,13 +11,13 @@ to install
 
 place the contents of the <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod/partitions>partitions</a> folder inside the following folder
 
-`C:\Users\***PCUSERNAME**\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\tools\partitions\`
+`C:\Users\***PCUSERNAME**\AppData\Local\Arduino15\packages\esp32\hardware\esp32\***LIBVERSION**\tools\partitions\`
 
 
 
-place the contents of the <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod/2.0.2>2.0.2</a> folder inside the following folder and select yes to overwrite 
+place <a href=https://github.com/stooged/ESP32-Server-900u/tree/main/esplib_mod/boards.txt>boards.txt</a> inside the following folder and select yes to overwrite 
 
-`C:\Users\***PCUSERNAME**\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\`
+`C:\Users\***PCUSERNAME**\AppData\Local\Arduino15\packages\esp32\hardware\esp32\***LIBVERSION***\`
 
 <br>
 
