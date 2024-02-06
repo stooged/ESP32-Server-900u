@@ -516,6 +516,9 @@ void handleCacheManifest(AsyncWebServerRequest *request) {
   if (!instr(output, "payloads.html\r\n")) {
     output += "payloads.html\r\n";
   }
+  if (!instr(output, "exploit.js\r\n")) {
+    output += "exploit.js\r\n";
+  }
   if (!instr(output, "style.css\r\n")) {
     output += "style.css\r\n";
   }
