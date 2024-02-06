@@ -4,7 +4,8 @@
 
 This is a project designed for the <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a>, *<a href=https://www.espressif.com/en/products/socs/esp32-s3>ESP32-S3</a> and <a href=https://www.espressif.com/en/products/socs/esp32>ESP32</a> boards to provide a wifi http server, dns server and *<b>USB storage emulation</b>.
 
-it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit</a>.
+it is for the <a href=https://github.com/ChendoChap/pOOBs4>PS4 9.00 OOB Exploit</a> which is now combined with PsFree.
+
 
 <br>
 
