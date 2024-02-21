@@ -63,6 +63,14 @@ if you have problems with the board being identified/found in windows then you m
 
 <br>
 
+
+## Dongles
+these dongles have been tested and work, they are a great way to have a compact exploit tool<br>
+<br>
+:ok: <a href=https://www.lilygo.cc/products/t-dongle-s3>LILYGO T-Dongle-S3</a><br>
+:ok: <a href=https://www.aliexpress.com/i/1005005244896472.html>ESP32-S2 Dongle</a><br>
+
+
 ## Tested Boards
 
 these <a href=https://www.espressif.com/en/products/socs/esp32-s2>ESP32-S2</a> boards can be used for a plug and play setup(no wiring)<br>
