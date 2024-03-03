@@ -5,8 +5,13 @@
 #include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
-
-#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)  // ESP32-S2/S3 BOARDS(usb emulation)
+#if ARDUINO_USB_CDC_ON_BOOT
+#error "The menu option 'Tools / USB CDC On Boot' must be set to 'Disabled'"
+#elif ARDUINO_USB_DFU_ON_BOOT
+#error "The menu option 'Tools / USB DFU On Boot' must be set to 'Disabled'"
+#elif ARDUINO_USB_MSC_ON_BOOT
+#error "The menu option 'Tools / USB MSC On Boot' must be set to 'Disabled'"
+#elif defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)  // ESP32-S2/S3 BOARDS(usb emulation)
 #include "USB.h"
 #include "USBMSC.h"
 #include "exfathax.h"
@@ -142,19 +147,8 @@ File upFile;
 #if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
 USBMSC dev;
 #endif
+//USBCDC USBSerial;
 
-
-/*
-#if ARDUINO_USB_CDC_ON_BOOT
-#define HWSerial Serial0
-#define USBSerial Serial
-#else
-#define HWSerial Serial
-#if defined(CONFIG_IDF_TARGET_ESP32S2) | defined(CONFIG_IDF_TARGET_ESP32S3)
-USBCDC USBSerial;
-#endif
-#endif
-*/
 
 
 String split(String str, String from, String to) {
@@ -245,7 +239,7 @@ void handleFwUpdate(AsyncWebServerRequest *request, String filename, size_t inde
     if (!filename.startsWith("/")) {
       filename = "/" + filename;
     }
-    //HWSerial.printf("Update Start: %s\n", filename.c_str());
+    //USBSerial.printf("Update Start: %s\n", filename.c_str());
     if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
       Update.printError(Serial);
       sendwebmsg(request, "Update Failed: " + String(Update.errorString()));
@@ -259,7 +253,7 @@ void handleFwUpdate(AsyncWebServerRequest *request, String filename, size_t inde
   }
   if (final) {
     if (Update.end(true)) {
-      //HWSerial.printf("Update Success: %uB\n", index+len);
+      //USBSerial.printf("Update Success: %uB\n", index+len);
       String tmphtm = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"8; url=/info.html\"><style type=\"text/css\">body {background-color: #1451AE; color: #ffffff; font-size: 20px; font-weight: bold; margin: 0 0 0 0.0; padding: 0.4em 0.4em 0.4em 0.6em;}</style></head><center><br><br><br><br><br><br>Update Success, Rebooting.</center></html>";
       request->send(200, "text/html", tmphtm);
       delay(1000);
@@ -439,7 +433,7 @@ void handleConfig(AsyncWebServerRequest *request) {
 
 
 void handleReboot(AsyncWebServerRequest *request) {
-  //HWSerial.print("Rebooting ESP");
+  //USBSerial.print("Rebooting ESP");
   AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", rebooting_gz, sizeof(rebooting_gz));
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
@@ -474,7 +468,7 @@ void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t in
       filename = "/" + filename;
     }
     if (filename.equals("/config.ini")) { return; }
-    //HWSerial.printf("Upload Start: %s\n", filename.c_str());
+    //USBSerial.printf("Upload Start: %s\n", filename.c_str());
     upFile = FILESYS.open(filename, "w");
   }
   if (upFile) {
@@ -482,7 +476,7 @@ void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t in
   }
   if (final) {
     upFile.close();
-    //HWSerial.printf("upload Success: %uB\n", index+len);
+    //USBSerial.printf("upload Success: %uB\n", index+len);
   }
 }
 
@@ -625,8 +619,8 @@ void writeConfig() {
 
 
 void setup() {
-  //HWSerial.begin(115200);
-  //HWSerial.println("Version: " + firmwareVer);
+  //USBSerial.begin(115200);
+  //USBSerial.println("Version: " + firmwareVer);
   //USBSerial.begin();
 
 #if USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)
@@ -742,25 +736,25 @@ void setup() {
     }
 #endif
   } else {
-    //HWSerial.println("Filesystem failed to mount");
+    //USBSerial.println("Filesystem failed to mount");
   }
 
   if (startAP) {
-    //HWSerial.println("SSID: " + AP_SSID);
-    //HWSerial.println("Password: " + AP_PASS);
-    //HWSerial.println("");
-    //HWSerial.println("WEB Server IP: " + Server_IP.toString());
-    //HWSerial.println("Subnet: " + Subnet_Mask.toString());
-    //HWSerial.println("WEB Server Port: " + String(WEB_PORT));
-    //HWSerial.println("");
+    //USBSerial.println("SSID: " + AP_SSID);
+    //USBSerial.println("Password: " + AP_PASS);
+    //USBSerial.println("");
+    //USBSerial.println("WEB Server IP: " + Server_IP.toString());
+    //USBSerial.println("Subnet: " + Subnet_Mask.toString());
+    //USBSerial.println("WEB Server Port: " + String(WEB_PORT));
+    //USBSerial.println("");
     WiFi.softAPConfig(Server_IP, Server_IP, Subnet_Mask);
     WiFi.softAP(AP_SSID.c_str(), AP_PASS.c_str());
-    //HWSerial.println("WIFI AP started");
+    //USBSerial.println("WIFI AP started");
     dnsServer.setTTL(30);
     dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
     dnsServer.start(53, "*", Server_IP);
-    //HWSerial.println("DNS server started");
-    //HWSerial.println("DNS Server IP: " + Server_IP.toString());
+    //USBSerial.println("DNS server started");
+    //USBSerial.println("DNS Server IP: " + Server_IP.toString());
   }
 
   if (connectWifi && WIFI_SSID.length() > 0 && WIFI_PASS.length() > 0) {
@@ -768,16 +762,16 @@ void setup() {
     WiFi.setAutoReconnect(true);
     WiFi.hostname(WIFI_HOSTNAME);
     WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
-    //HWSerial.println("WIFI connecting");
+    //USBSerial.println("WIFI connecting");
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-      //HWSerial.println("Wifi failed to connect");
+      //USBSerial.println("Wifi failed to connect");
     } else {
       IPAddress LAN_IP = WiFi.localIP();
       if (LAN_IP) {
-        //HWSerial.println("Wifi Connected");
-        //HWSerial.println("WEB Server LAN IP: " + LAN_IP.toString());
-        //HWSerial.println("WEB Server Port: " + String(WEB_PORT));
-        //HWSerial.println("WEB Server Hostname: " + WIFI_HOSTNAME);
+        //USBSerial.println("Wifi Connected");
+        //USBSerial.println("WEB Server LAN IP: " + LAN_IP.toString());
+        //USBSerial.println("WEB Server Port: " + String(WEB_PORT));
+        //USBSerial.println("WEB Server Hostname: " + WIFI_HOSTNAME);
         String mdnsHost = WIFI_HOSTNAME;
         mdnsHost.replace(".local", "");
         MDNS.begin(mdnsHost.c_str());
@@ -785,8 +779,8 @@ void setup() {
           dnsServer.setTTL(30);
           dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
           dnsServer.start(53, "*", LAN_IP);
-          //HWSerial.println("DNS server started");
-          //HWSerial.println("DNS Server IP: " + LAN_IP.toString());
+          //USBSerial.println("DNS server started");
+          //USBSerial.println("DNS Server IP: " + LAN_IP.toString());
         }
       }
     }
@@ -925,7 +919,7 @@ void setup() {
   server.serveStatic("/", FILESYS, "/").setDefaultFile("index.html");
 
   server.onNotFound([](AsyncWebServerRequest *request) {
-    //HWSerial.println(request->url());
+    //USBSerial.println(request->url());
     String path = request->url();
     if (instr(path, "/update/ps4/")) {
       String Region = split(path, "/update/ps4/list/", "/");
@@ -996,7 +990,7 @@ void setup() {
 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   server.begin();
-  //HWSerial.println("HTTP server started");
+  //USBSerial.println("HTTP server started");
 
   if (TIME2SLEEP < 5) { TIME2SLEEP = 5; }  //min sleep time
   bootTime = millis();
@@ -1046,7 +1040,7 @@ void disableUSB() {
 void loop() {
   if (espSleep && !isFormating) {
     if (millis() >= (bootTime + (TIME2SLEEP * 60000))) {
-      //HWSerial.print("Esp sleep");
+      //USBSerial.print("Esp sleep");
       esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
       esp_deep_sleep_start();
       return;
@@ -1057,7 +1051,7 @@ void loop() {
   }
 #if !USESD && !USELILYSD
   if (isFormating) {
-    //HWSerial.print("Formatting Storage");
+    //USBSerial.print("Formatting Storage");
     isFormating = false;
     FILESYS.end();
     FILESYS.format();
