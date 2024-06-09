@@ -623,13 +623,13 @@ void setup() {
   //USBSerial.println("Version: " + firmwareVer);
   //USBSerial.begin();
 
+  pinMode(38, OUTPUT);
+  digitalWrite(38, HIGH); 
+
 #if USBCONTROL && defined(CONFIG_IDF_TARGET_ESP32)
   pinMode(usbPin, OUTPUT);
   digitalWrite(usbPin, LOW);
 #endif
-
-
-
 
 #if USESD
   SPI.begin(SCK, MISO, MOSI, SS);
@@ -1041,6 +1041,9 @@ void loop() {
   if (espSleep && !isFormating) {
     if (millis() >= (bootTime + (TIME2SLEEP * 60000))) {
       //USBSerial.print("Esp sleep");
+      digitalWrite(38, HIGH);
+      gpio_hold_en((gpio_num_t)38);
+      gpio_deep_sleep_hold_en();
       esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
       esp_deep_sleep_start();
       return;
