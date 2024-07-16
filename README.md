@@ -13,7 +13,8 @@ the only files required on the storage of the esp32 are the .bin payloads, every
 
 you can still modify the html by uploading your own index.html, if there is no index.html on the storage the internal pages will be used.<br>
 
-if you have problems compiling the sketch make sure the <a href=https://github.com/stooged/ESP32-Server-900u#libraries>ESP32 library</a> is up to date.<br>
+if you have problems compiling the sketch make sure the ESP32 library version is not above 2.0.14.<br>
+
 
 the firmware is updatable via http and the payload files can be managed via http.<br>
 if you select a `No OTA` partition the firmware update via http will not be available.<br>
