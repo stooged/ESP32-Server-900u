@@ -55,7 +55,7 @@ install or update the ESP32 core by adding this url to the <a href=https://docs.
 
 ` https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json `
 
-then goto the "<b>Boards Manager</b> and install or update the "<b>esp32</b>" core.
+then goto the "<b>Boards Manager</b> and install or update the "<b>esp32</b>" core, do not update above version 2.0.14.
 
 <br>
 
